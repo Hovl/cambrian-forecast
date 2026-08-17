@@ -3,140 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YC Category Forecast — Cambrian Signal</title>
-    <meta name="description" content="Dual forecast of YC startup categories: which will dominate AND which niches are breaking out. Based on 6,179 companies across 15 batches.">
-    <meta property="og:title" content="YC Category Forecast — Cambrian Signal">
-    <meta property="og:description" content="Which YC category will dominate the next batch, and which niches are breaking out? Two complementary views on 6,179 companies.">
+    <title>YC Category Forecast — BuildTech Ventures</title>
+    <meta name="description" content="A two-lens view of YC category formation: macro trends showing which categories dominate, paired with micro signals detecting emerging niches.">
+    <meta property="og:title" content="YC Category Forecast — BuildTech Ventures">
+    <meta property="og:description" content="Which YC category will dominate the next batch, and which niches are breaking out? Two complementary lenses on 6,179 companies.">
     <meta property="og:type" content="article">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26;
-            --border: #2a2a3a; --text: #e0e0e8; --text-dim: #8888a0;
-            --accent: #6da31c; --accent2: #8bc34a;
-            --blue: #4a9eff; --red: #ff6b6b; --orange: #ffaa40; --purple: #b388ff;
+            --blue: #4A4AFB;
+            --navy: #1C2B44;
+            --gold: #E8A121;
+            --white: #FFFFFF;
+            --off-white: #F8F8F8;
+            --light-gray: #E0E0E0;
+            --dark-gray: #222222;
+            --med-gray: #666666;
+            --warm-gray: #4B5563;
+            --green: #478566;
+            --light-green: #D1E0D9;
+            --red: #D94040;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; min-height:100vh; }
-        .container { max-width:960px; margin:0 auto; padding:2rem 1.5rem; }
-        header { text-align:center; padding:3rem 0 2rem; border-bottom:1px solid var(--border); margin-bottom:2.5rem; }
-        .kicker { font-size:.75rem; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); margin-bottom:.75rem; font-weight:600; }
-        h1 { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; line-height:1.15; margin-bottom:.75rem; background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .subtitle { font-size:1.05rem; color:var(--text-dim); max-width:640px; margin:0 auto; }
-        .meta { display:flex; justify-content:center; gap:1.5rem; margin-top:1.25rem; font-size:.8rem; color:var(--text-dim); }
-        .meta span { display:flex; align-items:center; gap:.35rem; }
-        .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block; }
-        section { margin-bottom:2.5rem; }
-        h2 { font-size:1.35rem; font-weight:600; margin-bottom:1rem; color:var(--text); display:flex; align-items:center; gap:.5rem; }
-        h2 .icon { font-size:1.1rem; }
-        p { margin-bottom:1rem; color:var(--text-dim); }
 
-        /* Tabs */
-        .tab-bar { display:flex; gap:0; margin-bottom:2rem; border-bottom:1px solid var(--border); }
-        .tab-btn { background:none; border:none; color:var(--text-dim); font-size:.85rem; font-weight:600; padding:.75rem 1.5rem; cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; font-family:inherit; }
-        .tab-btn:hover { color:var(--text); }
-        .tab-btn.active { color:var(--accent2); border-bottom-color:var(--accent2); }
-        .tab-panel { display:none; }
-        .tab-panel.active { display:block; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Winner cards */
-        .winner-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; }
-        .winner-card { border-radius:12px; padding:1.75rem; text-align:center; position:relative; overflow:hidden; }
-        .winner-card.dom { background:linear-gradient(135deg,#1a2a10 0%,#121a0e 100%); border:1px solid #2a4a1a; }
-        .winner-card.emg { background:linear-gradient(135deg,#1a1a2e 0%,#12121e 100%); border:1px solid #2a2a5a; }
-        .winner-card::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; pointer-events:none; }
-        .winner-card.dom::before { background:radial-gradient(ellipse at center,rgba(109,163,28,.06) 0%,transparent 70%); }
-        .winner-card.emg::before { background:radial-gradient(ellipse at center,rgba(74,158,255,.06) 0%,transparent 70%); }
-        .winner-label { font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:.4rem; font-weight:700; }
-        .winner-card.dom .winner-label { color:var(--accent); }
-        .winner-card.emg .winner-label { color:var(--blue); }
-        .winner-name { font-size:1.6rem; font-weight:800; margin-bottom:.35rem; }
-        .winner-card.dom .winner-name { color:var(--accent2); }
-        .winner-card.emg .winner-name { color:var(--blue); }
-        .winner-stat { font-size:.82rem; color:var(--text-dim); }
-        .winner-stat strong { color:var(--accent2); }
-        .winner-card.emg .winner-stat strong { color:var(--blue); }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--off-white);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
 
-        /* Table */
-        .table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); background:var(--surface); }
-        table { width:100%; border-collapse:collapse; font-size:.85rem; }
-        thead th { background:var(--surface2); padding:.75rem 1rem; text-align:left; font-weight:600; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); border-bottom:1px solid var(--border); white-space:nowrap; }
-        thead th.num { text-align:right; }
-        tbody td { padding:.65rem 1rem; border-bottom:1px solid var(--border); white-space:nowrap; }
-        tbody td.num { text-align:right; font-variant-numeric:tabular-nums; }
-        tbody tr:last-child td { border-bottom:none; }
-        tbody tr:hover { background:rgba(109,163,28,.04); }
-        .cat-name { font-weight:500; color:var(--text); }
-        .tag { display:inline-block; font-size:.65rem; padding:.15rem .45rem; border-radius:4px; font-weight:600; margin-left:.5rem; vertical-align:middle; }
-        .tag-up { background:rgba(109,163,28,.15); color:var(--accent2); }
-        .tag-down { background:rgba(255,107,107,.12); color:var(--red); }
-        .tag-hot { background:rgba(255,170,64,.15); color:var(--orange); }
-        .tag-wild { background:rgba(179,136,255,.15); color:var(--purple); }
-        .ci { color:var(--text-dim); font-size:.78rem; }
-        .bar-cell { position:relative; min-width:120px; }
-        .bar-bg { position:absolute; top:50%; left:0; transform:translateY(-50%); height:6px; border-radius:3px; background:var(--accent); opacity:.3; transition:width .6s ease; }
-        .bar-fg { position:absolute; top:50%; left:0; transform:translateY(-50%); height:6px; border-radius:3px; background:var(--accent2); transition:width .6s ease; }
-        .bar-bg.blue { background:var(--blue); }
-        .bar-fg.blue { background:var(--blue); }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
 
-        /* Sparklines */
-        .spark-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; margin-top:1rem; }
-        .spark-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem 1.25rem; }
-        .spark-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.75rem; }
-        .spark-title { font-size:.85rem; font-weight:600; color:var(--text); }
-        .spark-value { font-size:.75rem; color:var(--text-dim); }
-        .spark-value .up { color:var(--accent2); } .spark-value .down { color:var(--red); }
-        .spark-svg { width:100%; height:48px; display:block; }
+        /* ── Header ── */
+        header {
+            text-align: center;
+            padding: 3rem 0 2.5rem;
+        }
 
-        /* Comparison */
-        .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
-        .compare-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem; }
-        .compare-card h3 { font-size:.9rem; font-weight:600; margin-bottom:.75rem; }
-        .compare-card.agree h3 { color:var(--accent2); }
-        .compare-card.diverge h3 { color:var(--orange); }
-        .compare-list { list-style:none; }
-        .compare-list li { font-size:.82rem; color:var(--text-dim); padding:.35rem 0; border-bottom:1px solid var(--border); }
-        .compare-list li:last-child { border-bottom:none; }
-        .compare-list .cat { color:var(--text); font-weight:500; }
+        .pill {
+            display: inline-block;
+            background: var(--blue);
+            color: var(--white);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.35rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.25rem;
+        }
 
-        /* Method */
-        .method-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; font-size:.82rem; color:var(--text-dim); }
-        .method-box strong { color:var(--text); }
-        .method-box code { background:var(--surface2); padding:.15rem .4rem; border-radius:4px; font-size:.78rem; color:var(--accent2); }
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+            color: var(--navy);
+        }
 
-        footer { border-top:1px solid var(--border); padding-top:1.5rem; margin-top:3rem; text-align:center; font-size:.75rem; color:var(--text-dim); }
-        footer a { color:var(--accent2); text-decoration:none; }
-        footer a:hover { text-decoration:underline; }
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--med-gray);
+            max-width: 640px;
+            margin: 0 auto;
+        }
 
-        @media(max-width:640px) {
-            .container{padding:1rem} header{padding:2rem 0 1.5rem}
-            .meta{flex-direction:column;gap:.5rem} .spark-grid{grid-template-columns:1fr}
-            .winner-grid{grid-template-columns:1fr} .compare-grid{grid-template-columns:1fr}
+        .meta {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            font-size: 0.78rem;
+            color: var(--warm-gray);
+        }
+
+        .meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .meta-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--blue);
+            display: inline-block;
+        }
+
+        .divider {
+            height: 3px;
+            background: var(--gold);
+            width: 60px;
+            margin: 2rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* ── Winner cards ── */
+        .winner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .winner-card {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1.75rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .winner-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .winner-card.dom::before { background: var(--blue); }
+        .winner-card.emg::before { background: var(--gold); }
+
+        .winner-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-card.dom .winner-label { color: var(--blue); }
+        .winner-card.emg .winner-label { color: var(--gold); }
+
+        .winner-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 0.35rem;
+        }
+
+        .winner-stat {
+            font-size: 0.82rem;
+            color: var(--med-gray);
+        }
+
+        .winner-stat strong {
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        /* ── Sections ── */
+        section { margin-bottom: 2.5rem; }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 .section-pill {
+            display: inline-block;
+            background: var(--blue);
+            color: var(--white);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.2rem 0.6rem;
+            border-radius: 100px;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--med-gray);
+            font-size: 0.9rem;
+        }
+
+        p a { color: var(--blue); text-decoration: none; font-weight: 500; }
+        p a:hover { text-decoration: underline; }
+
+        /* ── Tabs ── */
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--warm-gray);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover { color: var(--navy); }
+
+        .tab-btn.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Table ── */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--light-gray);
+            background: var(--white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        thead th {
+            background: var(--off-white);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--warm-gray);
+            border-bottom: 1px solid var(--light-gray);
+            white-space: nowrap;
+        }
+
+        thead th.num { text-align: right; }
+
+        tbody td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+
+        tbody td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: rgba(74,74,251,0.03); }
+
+        .cat-name { font-weight: 500; color: var(--navy); }
+
+        .tag {
+            display: inline-block;
+            font-size: 0.62rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 100px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .tag-up { background: var(--light-green); color: #1a6b3c; }
+        .tag-down { background: #fde8e8; color: var(--red); }
+        .tag-hot { background: #fef3e0; color: #b87a00; }
+        .tag-wild { background: #ede9fe; color: #6d28d9; }
+
+        .ci { color: var(--warm-gray); font-size: 0.76rem; }
+
+        .bar-cell { position: relative; min-width: 120px; }
+        .bar-bg {
+            position: absolute; top: 50%; left: 0;
+            transform: translateY(-50%); height: 6px;
+            border-radius: 3px; background: var(--light-gray);
+        }
+        .bar-fg {
+            position: absolute; top: 50%; left: 0;
+            transform: translateY(-50%); height: 6px;
+            border-radius: 3px; background: var(--blue);
+        }
+        .bar-fg.gold { background: var(--gold); }
+
+        /* ── Sparklines ── */
+        .spark-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .spark-card {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .spark-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.75rem;
+        }
+
+        .spark-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .spark-value {
+            font-size: 0.72rem;
+            color: var(--warm-gray);
+        }
+
+        .spark-value .up { color: var(--green); }
+        .spark-value .down { color: var(--red); }
+
+        .spark-svg { width: 100%; height: 48px; display: block; }
+
+        /* ── Combined view ── */
+        .combine-intro {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-left: 3px solid var(--blue);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .combine-intro strong { color: var(--navy); }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .compare-card {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .compare-card h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .compare-card.converge h3 { color: var(--green); }
+        .compare-card.complement h3 { color: var(--gold); }
+
+        .compare-list { list-style: none; }
+        .compare-list li {
+            font-size: 0.8rem;
+            color: var(--med-gray);
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            line-height: 1.5;
+        }
+        .compare-list li:last-child { border-bottom: none; }
+        .compare-list .cat { color: var(--navy); font-weight: 600; }
+
+        /* ── Insight cards ── */
+        .insight-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .insight-card {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .insight-card .insight-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-card h3 {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.4rem;
+        }
+
+        .insight-card p {
+            font-size: 0.78rem;
+            color: var(--med-gray);
+            margin-bottom: 0;
+        }
+
+        .insight-card.highlight {
+            border-left: 3px solid var(--gold);
+            background: linear-gradient(135deg, #fffdf7 0%, var(--white) 100%);
+        }
+
+        /* ── Methodology ── */
+        .method-box {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.8rem;
+            color: var(--med-gray);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .method-box strong { color: var(--navy); }
+        .method-box code {
+            background: var(--off-white);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--blue);
+            border: 1px solid var(--light-gray);
+        }
+        .method-box a { color: var(--blue); text-decoration: none; font-weight: 500; }
+
+        /* ── Footer ── */
+        footer {
+            border-top: 1px solid var(--light-gray);
+            padding-top: 1.5rem;
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--warm-gray);
+        }
+
+        footer a { color: var(--blue); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        .footer-brand {
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 1rem; }
+            header { padding: 2rem 0 1.5rem; }
+            .meta { flex-direction: column; gap: 0.5rem; }
+            .spark-grid { grid-template-columns: 1fr; }
+            .winner-grid { grid-template-columns: 1fr; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .insight-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="kicker">YC Category Forecast · August 2026</div>
+            <div class="pill">BuildTech Ventures</div>
             <h1>Which YC Category Will<br>Dominate Next Batch?</h1>
             <p class="subtitle">A two-lens view of YC category formation: macro trends showing which categories dominate, paired with micro signals detecting emerging niches — from 6,179 companies across 15 batches.</p>
             <div class="meta">
-                <span><span class="dot"></span> 15 batches (S21–S26)</span>
-                <span><span class="dot"></span> 75 formations</span>
-                <span><span class="dot"></span> 6,179 companies</span>
+                <span><span class="meta-dot"></span> 15 batches (S21–S26)</span>
+                <span><span class="meta-dot"></span> 75 formations</span>
+                <span><span class="meta-dot"></span> 6,179 companies</span>
             </div>
+            <div class="divider"></div>
         </header>
 
         <!-- Dual winners -->
         <section>
             <div class="winner-grid">
                 <div class="winner-card dom">
-                    <div class="winner-label">★ Dominance — Largest Next Batch</div>
+                    <div class="winner-label">Dominance — Largest Next Batch</div>
                     <div class="winner-name">AI</div>
                     <div class="winner-stat"><strong>29.9%</strong> predicted share · <strong>31.0%</strong> current</div>
                 </div>
                 <div class="winner-card emg">
-                    <div class="winner-label">★ Emergence — Fastest Breakout</div>
+                    <div class="winner-label">Emergence — Fastest Breakout</div>
                     <div class="winner-name">Coding Agent</div>
                     <div class="winner-stat"><strong>3.4%</strong> predicted · <strong>+0.6pp</strong> trend · rising from 0.3%</div>
                 </div>
@@ -145,16 +514,17 @@
 
         <!-- Tabs -->
         <div class="tab-bar">
-            <button class="tab-btn active" data-tab="dominance">🏆 Dominance</button>
-            <button class="tab-btn" data-tab="emergence">🚀 Emergence</button>
-            <button class="tab-btn" data-tab="combine">🔗 Combined View</button>
+            <button class="tab-btn active" data-tab="dominance">Dominance</button>
+            <button class="tab-btn" data-tab="emergence">Emergence</button>
+            <button class="tab-btn" data-tab="combine">Combined View</button>
         </div>
 
         <!-- DOMINANCE TAB -->
         <div class="tab-panel active" id="tab-dominance">
             <section>
-                <h2><span class="icon">📊</span> Dominance Forecast</h2>
-                <p>The macro lens: which categories will hold the most share of the next YC batch. Predicted from 15 historical data points per category, weighted by absolute company count.</p>
+                <div class="section-pill">Macro Lens</div>
+                <h2>Dominance Forecast</h2>
+                <p>Which categories will hold the most share of the next YC batch. Predicted from 15 historical data points per category, weighted by absolute company count.</p>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>#</th><th>Category</th><th class="num">Current</th><th class="num">Forecast</th><th style="min-width:140px">Distribution</th><th class="num">Q10–Q90</th><th>Signal</th></tr></thead>
@@ -163,8 +533,9 @@
                 </div>
             </section>
             <section>
-                <h2><span class="icon">📈</span> Dominance Trajectories</h2>
-                <p>Share of batch over time. Dashed line = forecast.</p>
+                <div class="section-pill">Trajectories</div>
+                <h2>Category Share Over Time</h2>
+                <p>Each point is one YC batch; the dashed segment is the forecast.</p>
                 <div class="spark-grid" id="dom-sparks"></div>
             </section>
         </div>
@@ -172,8 +543,9 @@
         <!-- EMERGENCE TAB -->
         <div class="tab-panel" id="tab-emergence">
             <section>
-                <h2><span class="icon">🚀</span> Emergence Forecast</h2>
-                <p>The micro lens: which niche categories are breaking out from small bases. These are fast-growing segments detected via <a href="https://cambrian.jafar.com/" style="color:var(--blue)">Cambrian Signal's</a> formation analysis and validated with time series trend data.</p>
+                <div class="section-pill">Micro Lens</div>
+                <h2>Emergence Forecast</h2>
+                <p>Which niche categories are breaking out from small bases. Fast-growing segments detected via <a href="https://cambrian.jafar.com/">Cambrian Signal's</a> formation analysis and validated with time series trend data.</p>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>#</th><th>Category</th><th class="num">Current</th><th class="num">Forecast</th><th style="min-width:140px">Distribution</th><th class="num">Q10–Q90</th><th>Trend</th></tr></thead>
@@ -182,63 +554,86 @@
                 </div>
             </section>
             <section>
-                <h2><span class="icon">📈</span> Emergence Trajectories</h2>
-                <p>Share of batch over time for niche categories. Dashed line = forecast.</p>
+                <div class="section-pill">Trajectories</div>
+                <h2>Niche Category Trends</h2>
+                <p>Share of batch over time for emerging categories. Dashed line = forecast.</p>
                 <div class="spark-grid" id="emg-sparks"></div>
             </section>
         </div>
 
-        <!-- COMPARE TAB -->
+        <!-- COMBINED TAB -->
         <div class="tab-panel" id="tab-combine">
             <section>
-                <h2><span class="icon">🔗</span> How the Two Lenses Work Together</h2>
-                <p>The dominance lens tracks <strong>volume</strong> — which categories have the most companies and where that share is heading. The emergence lens tracks <strong>velocity</strong> — which small categories are accelerating and might become the next big thing. Neither alone tells the full story.</p>
+                <div class="section-pill">Framework</div>
+                <h2>How the Two Lenses Work Together</h2>
+                <div class="combine-intro">
+                    <p style="margin-bottom:0">The dominance lens tracks <strong>volume</strong> — which categories have the most companies and where that share is heading. The emergence lens tracks <strong>velocity</strong> — which small categories are accelerating and might become the next big thing. Neither alone tells the full story.</p>
+                </div>
+
                 <div class="compare-grid">
-                    <div class="compare-card agree">
+                    <div class="compare-card converge">
                         <h3>✓ Converging Signals</h3>
                         <ul class="compare-list">
-                            <li><span class="cat">Hard Tech</span> — both lenses see growth: emergence detects 4.30× momentum, dominance shows +1.5pp trend. High-confidence signal.</li>
+                            <li><span class="cat">Hard Tech</span> — both lenses see growth: emergence detects 4.30× momentum, dominance shows +1.5pp trend. High conviction.</li>
                             <li><span class="cat">Hardware & Manufacturing</span> — emergence flags 5–8× multipliers, dominance confirms upward trajectory. Physical-world tech is the real deal.</li>
-                            <li><span class="cat">Developer Tools declining</span> — emergence detects the biggest negative mover, dominance confirms the share halved (20%→10%). A category dissolving into verticals.</li>
-                            <li><span class="cat">Defense & Security</span> — emergence sees 3.5× and 1.9× growth from small bases. Dominance shows these are still niche by volume but trending up. Worth watching.</li>
+                            <li><span class="cat">Developer Tools declining</span> — emergence detects the biggest negative mover, dominance confirms the share halved (20%→10%).</li>
+                            <li><span class="cat">Defense & Security</span> — emergence sees 3.5× and 1.9× growth from small bases. Dominance shows niche by volume but trending up.</li>
                         </ul>
                     </div>
-                    <div class="compare-card diverge">
+                    <div class="compare-card complement">
                         <h3>△ Complementary Views</h3>
                         <ul class="compare-list">
-                            <li><span class="cat">Emergence catches early signals dominance can't see</span> — Browser Agents (7.80×), Drug Discovery (3.69×), Autonomous Drones (4.15×). These are too small to move the share needle today, but emergence detects them before they show up in dominance rankings.</li>
-                            <li><span class="cat">Dominance catches broad shifts emergence can't see</span> — Industrials (5%→23% of batch) is a massive macro trend, but it's a broad industry tag, not a niche. Fintech's recovery is invisible to emergence because it's a comeback, not a new formation.</li>
-                            <li><span class="cat">RL is an example of the lenses diverging</span> — emergence sees 4.17× momentum (big multiplier on tiny base), dominance sees it flat. Emergence is right that something is happening; dominance is right that it's not yet material by volume.</li>
-                            <li><span class="cat">Robotics shows why you need both</span> — emergence says Manufacturing & Robotics is still accelerating; dominance predicts mean-reversion from an S26 spike. The truth is probably somewhere between: real growth masked by batch-to-batch variance.</li>
+                            <li><span class="cat">Emergence catches early signals</span> — Browser Agents (7.80×), Drug Discovery (3.69×), Autonomous Drones (4.15×). Too small for dominance but worth watching.</li>
+                            <li><span class="cat">Dominance catches broad shifts</span> — Industrials (5%→23%) is a massive macro trend invisible to emergence because it's a broad tag, not a niche.</li>
+                            <li><span class="cat">RL shows the lenses diverging</span> — emergence sees 4.17× momentum, dominance sees it flat. Something is happening but not yet material by volume.</li>
+                            <li><span class="cat">Robotics needs both lenses</span> — emergence says still accelerating; dominance predicts mean-reversion. The truth is probably in between.</li>
                         </ul>
                     </div>
                 </div>
             </section>
             <section>
-                <h2><span class="icon">💡</span> Reading the Signals Together</h2>
-                <div class="method-box">
-                    <p><strong>When both lenses agree</strong> (Hard Tech, Hardware, Manufacturing) → high conviction. These categories are growing AND gaining share. The signal is strong across both velocity and volume.</p>
-                    <p style="margin-top:.5rem"><strong>When emergence is ahead of dominance</strong> (Browser Agents, Drug Discovery, Autonomous Drones) → early signal. These are the categories to watch. They're too small to matter by volume today, but if the emergence signal sustains, they'll show up in dominance next cycle.</p>
-                    <p style="margin-top:.5rem"><strong>When dominance shows something emergence doesn't</strong> (Industrials, Fintech recovery) → macro shift. These are broad structural changes in what types of companies YC funds, not niche breakouts.</p>
-                    <p style="margin-top:.5rem"><strong>The highest-conviction read for S27:</strong> AI remains dominant by volume, Industrials is the macro story, and the most interesting emerging signals are in Hard Tech, Coding Agents, and Defense — where both lenses point in the same direction.</p>
+                <div class="section-pill">Synthesis</div>
+                <h2>Reading the Signals Together</h2>
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">🔵</div>
+                        <h3>Both Lenses Agree → High Conviction</h3>
+                        <p>Hard Tech, Hardware, Manufacturing. These categories are growing AND gaining share. The signal is strong across both velocity and volume.</p>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">⚡</div>
+                        <h3>Emergence Ahead → Early Signal</h3>
+                        <p>Browser Agents, Drug Discovery, Autonomous Drones. Too small to matter by volume today, but if the emergence signal sustains, they'll show up in dominance next cycle.</p>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">📊</div>
+                        <h3>Dominance Only → Macro Shift</h3>
+                        <p>Industrials (5%→23%), Fintech recovery. Broad structural changes in what types of companies YC funds, not niche breakouts.</p>
+                    </div>
+                    <div class="insight-card highlight">
+                        <div class="insight-icon">★</div>
+                        <h3>Highest Conviction for S27</h3>
+                        <p>AI remains dominant by volume. Industrials is the macro story. The most interesting emerging signals are in Hard Tech, Coding Agents, and Defense — where both lenses converge.</p>
+                    </div>
                 </div>
             </section>
         </div>
 
         <!-- Methodology -->
         <section>
-            <h2><span class="icon">🔬</span> Methodology</h2>
+            <div class="section-pill">Methodology</div>
+            <h2>How This Was Built</h2>
             <div class="method-box">
-                <p><strong>Data:</strong> <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal</a> (YC formation data, version <code>yc-2026-08-14-semantic-v7</code>) + <a href="https://yc-oss.github.io/api/companies/all.json" style="color:var(--accent2)">YC OSS API</a> (6,179 companies).</p>
-                <p style="margin-top:.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes 94–398). Emergence categories use keyword matching on company descriptions where YC tags don't exist.</p>
-                <p style="margin-top:.5rem"><strong>Model:</strong> Time series forecasting, zero-shot. 2-step ahead point forecast + quantile outputs (10th–90th percentile).</p>
-                <p style="margin-top:.5rem"><strong>Emergence data:</strong> Niche category signals informed by <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal's</a> formation momentum analysis. Their whisper rankings detect × multiplier on share change; we validate those signals against per-batch time series trends.</p>
+                <p><strong>Data:</strong> <a href="https://cambrian.jafar.com/">Cambrian Signal</a> (YC formation data, version <code>yc-2026-08-14-semantic-v7</code>) + <a href="https://yc-oss.github.io/api/companies/all.json">YC OSS API</a> (6,179 companies).</p>
+                <p style="margin-top:0.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes 94–398). Emergence categories use keyword matching on company descriptions where YC tags don't exist.</p>
+                <p style="margin-top:0.5rem"><strong>Model:</strong> Time series forecasting, zero-shot. 2-step ahead point forecast + quantile outputs (10th–90th percentile).</p>
+                <p style="margin-top:0.5rem"><strong>Emergence data:</strong> Niche category signals informed by <a href="https://cambrian.jafar.com/">Cambrian Signal's</a> formation momentum analysis. Their whisper rankings detect × multiplier on share change; we validate those signals against per-batch time series trends.</p>
             </div>
         </section>
 
         <footer>
-            <p>Data: <a href="https://cambrian.jafar.com/">Cambrian Signal</a> · August 17, 2026</p>
-            <p style="margin-top:.35rem">YC batches S21 (Summer 2021) through S26 (Summer 2026). Forecast is for the next unannounced batch.</p>
+            <p><span class="footer-brand">BUILDTECH VENTURES</span> · Data: <a href="https://cambrian.jafar.com/">Cambrian Signal</a> · August 17, 2026</p>
+            <p style="margin-top:0.35rem">YC batches S21 (Summer 2021) through S26 (Summer 2026). Forecast is for the next unannounced batch.</p>
         </footer>
     </div>
 
@@ -265,22 +660,22 @@
     };
 
     const emergence={
-        'Coding Agent':{series:[0.8,0.3,0.9,0.7,2.7,2.8,2.4,3.2,0.6,3.5,2.4,4.1,2.5,6.1,3.1],fc1:3.4,fc2:null,q10:0.0,q90:7.5,trend:0.6,signal:'up'},
-        'Voice Agent':{series:[0.5,0.0,2.1,1.1,0.5,3.2,2.0,3.2,4.8,2.1,5.4,2.1,2.0,1.5,2.6],fc1:2.2,fc2:null,q10:0.0,q90:5.0,trend:-1.1,signal:'down'},
-        'Security':{series:[1.8,2.5,1.7,1.5,1.4,2.4,1.2,1.1,0.0,2.8,1.2,1.4,0.0,0.5,3.1],fc1:1.7,fc2:null,q10:0.3,q90:3.2,trend:-0.6,signal:'down'},
-        'Law Firm':{series:[0.0,0.3,0.0,0.4,0.5,1.2,1.2,2.1,1.8,1.4,1.2,1.4,3.0,0.5,1.7],fc1:1.4,fc2:null,q10:0.0,q90:3.3,trend:0.4,signal:'stable'},
-        'Defense':{series:[0.8,0.3,0.0,0.0,0.0,0.4,0.8,2.1,0.0,0.0,0.6,2.1,0.0,1.0,2.6],fc1:1.3,fc2:null,q10:0.2,q90:2.7,trend:0.3,signal:'stable'},
-        'Drones':{series:[0.5,0.3,0.4,0.4,0.0,0.4,0.4,0.0,0.0,0.0,0.6,0.7,1.0,0.5,2.2],fc1:1.0,fc2:null,q10:0.0,q90:2.5,trend:0.8,signal:'up'},
-        'Humanoid Robots':{series:[0.0,0.0,0.0,0.0,0.0,0.8,0.0,0.0,0.6,0.7,0.6,1.4,1.0,1.0,1.3],fc1:1.0,fc2:null,q10:0.0,q90:2.7,trend:0.2,signal:'stable'},
-        'Supply Chain':{series:[2.3,3.5,3.0,2.6,3.2,2.0,6.9,2.1,1.8,3.5,5.4,1.4,3.0,1.0,6.6],fc1:1.0,fc2:null,q10:0.1,q90:2.0,trend:-0.8,signal:'down'},
-        'GovTech':{series:[1.0,0.8,0.9,0.0,0.9,0.8,0.8,0.0,3.0,0.7,0.6,1.4,0.0,0.5,1.7],fc1:0.9,fc2:null,q10:0.0,q90:2.0,trend:-0.1,signal:'stable'},
-        'Data Labeling':{series:[0.3,0.8,0.0,0.0,0.5,0.0,0.8,0.0,0.6,2.1,0.6,0.7,0.5,0.0,2.2],fc1:0.8,fc2:null,q10:0.0,q90:1.8,trend:-0.2,signal:'stable'},
-        'Clinical Trial':{series:[0.8,0.0,0.9,1.1,0.5,0.4,0.4,0.0,1.8,0.0,3.0,0.0,0.0,1.0,0.9],fc1:0.6,fc2:null,q10:0.0,q90:1.5,trend:-0.4,signal:'stable'},
-        'Hedge Fund':{series:[0.3,0.5,0.9,0.0,0.0,0.0,0.4,0.0,1.8,0.7,0.0,0.0,0.5,3.1,0.9],fc1:0.6,fc2:null,q10:0.0,q90:1.5,trend:1.2,signal:'up'},
-        'Browser Agents':{series:[0.3,0.0,0.4,0.0,0.5,0.8,0.4,1.1,1.2,2.1,2.4,0.7,0.0,0.5,0.4],fc1:0.4,fc2:null,q10:0.0,q90:1.5,trend:-1.4,signal:'down'},
-        'Design':{series:[0.8,0.3,0.0,1.1,1.8,0.8,0.0,2.1,1.8,0.7,1.2,3.4,0.0,1.0,0.4],fc1:0.4,fc2:null,q10:0.0,q90:1.5,trend:-1.4,signal:'down'},
-        'AI-powered Drug Discovery':{series:[1.8,0.3,0.4,0.7,0.5,0.4,0.8,0.0,0.0,0.0,1.2,0.0,0.0,0.0,1.3],fc1:0.4,fc2:null,q10:0.0,q90:1.5,trend:0.0,signal:'stable'},
-        'Document Processing':{series:[0.0,0.5,0.4,0.7,0.0,0.4,0.0,0.0,0.0,0.7,0.0,0.0,1.0,0.5,0.4],fc1:0.3,fc2:null,q10:0.0,q90:1.2,trend:0.4,signal:'stable'}
+        'Coding Agent':{series:[0.8,0.3,0.9,0.7,2.7,2.8,2.4,3.2,0.6,3.5,2.4,4.1,2.5,6.1,3.1],fc1:3.4,q10:0.0,q90:7.5,trend:0.6,signal:'up'},
+        'Voice Agent':{series:[0.5,0.0,2.1,1.1,0.5,3.2,2.0,3.2,4.8,2.1,5.4,2.1,2.0,1.5,2.6],fc1:2.2,q10:0.0,q90:5.0,trend:-1.1,signal:'down'},
+        'Security':{series:[1.8,2.5,1.7,1.5,1.4,2.4,1.2,1.1,0.0,2.8,1.2,1.4,0.0,0.5,3.1],fc1:1.7,q10:0.3,q90:3.2,trend:-0.6,signal:'down'},
+        'Law Firm':{series:[0.0,0.3,0.0,0.4,0.5,1.2,1.2,2.1,1.8,1.4,1.2,1.4,3.0,0.5,1.7],fc1:1.4,q10:0.0,q90:3.3,trend:0.4,signal:'stable'},
+        'Defense':{series:[0.8,0.3,0.0,0.0,0.0,0.4,0.8,2.1,0.0,0.0,0.6,2.1,0.0,1.0,2.6],fc1:1.3,q10:0.2,q90:2.7,trend:0.3,signal:'stable'},
+        'Drones':{series:[0.5,0.3,0.4,0.4,0.0,0.4,0.4,0.0,0.0,0.0,0.6,0.7,1.0,0.5,2.2],fc1:1.0,q10:0.0,q90:2.5,trend:0.8,signal:'up'},
+        'Humanoid Robots':{series:[0.0,0.0,0.0,0.0,0.0,0.8,0.0,0.0,0.6,0.7,0.6,1.4,1.0,1.0,1.3],fc1:1.0,q10:0.0,q90:2.7,trend:0.2,signal:'stable'},
+        'Supply Chain':{series:[2.3,3.5,3.0,2.6,3.2,2.0,6.9,2.1,1.8,3.5,5.4,1.4,3.0,1.0,6.6],fc1:1.0,q10:0.1,q90:2.0,trend:-0.8,signal:'down'},
+        'GovTech':{series:[1.0,0.8,0.9,0.0,0.9,0.8,0.8,0.0,3.0,0.7,0.6,1.4,0.0,0.5,1.7],fc1:0.9,q10:0.0,q90:2.0,trend:-0.1,signal:'stable'},
+        'Data Labeling':{series:[0.3,0.8,0.0,0.0,0.5,0.0,0.8,0.0,0.6,2.1,0.6,0.7,0.5,0.0,2.2],fc1:0.8,q10:0.0,q90:1.8,trend:-0.2,signal:'stable'},
+        'Clinical Trial':{series:[0.8,0.0,0.9,1.1,0.5,0.4,0.4,0.0,1.8,0.0,3.0,0.0,0.0,1.0,0.9],fc1:0.6,q10:0.0,q90:1.5,trend:-0.4,signal:'stable'},
+        'Hedge Fund':{series:[0.3,0.5,0.9,0.0,0.0,0.0,0.4,0.0,1.8,0.7,0.0,0.0,0.5,3.1,0.9],fc1:0.6,q10:0.0,q90:1.5,trend:1.2,signal:'up'},
+        'Browser Agents':{series:[0.3,0.0,0.4,0.0,0.5,0.8,0.4,1.1,1.2,2.1,2.4,0.7,0.0,0.5,0.4],fc1:0.4,q10:0.0,q90:1.5,trend:-1.4,signal:'down'},
+        'Design':{series:[0.8,0.3,0.0,1.1,1.8,0.8,0.0,2.1,1.8,0.7,1.2,3.4,0.0,1.0,0.4],fc1:0.4,q10:0.0,q90:1.5,trend:-1.4,signal:'down'},
+        'AI-powered Drug Discovery':{series:[1.8,0.3,0.4,0.7,0.5,0.4,0.8,0.0,0.0,0.0,1.2,0.0,0.0,0.0,1.3],fc1:0.4,q10:0.0,q90:1.5,trend:0.0,signal:'stable'},
+        'Document Processing':{series:[0.0,0.5,0.4,0.7,0.0,0.4,0.0,0.0,0.0,0.7,0.0,0.0,1.0,0.5,0.4],fc1:0.3,q10:0.0,q90:1.2,trend:0.4,signal:'stable'}
     };
 
     // Tabs
@@ -304,7 +699,7 @@
     domEntries.forEach(([name, d], i) => {
         const pct = d.fc1 / domMax * 100;
         const row = document.createElement('tr');
-        row.innerHTML = `<td class="num" style="color:var(--text-dim)">${i+1}</td><td class="cat-name">${name}</td><td class="num">${d.series[14].toFixed(1)}%</td><td class="num" style="font-weight:600;color:var(--accent2)">${d.fc1.toFixed(1)}%</td><td class="bar-cell"><div class="bar-bg" style="width:${pct}%"></div><div class="bar-fg" style="width:${pct}%"></div></td><td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td><td>${signalTag(d.signal)}</td>`;
+        row.innerHTML = `<td class="num" style="color:var(--warm-gray)">${i+1}</td><td class="cat-name">${name}</td><td class="num">${d.series[14].toFixed(1)}%</td><td class="num" style="font-weight:700;color:var(--navy)">${d.fc1.toFixed(1)}%</td><td class="bar-cell"><div class="bar-bg" style="width:${pct}%"></div><div class="bar-fg" style="width:${pct}%"></div></td><td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td><td>${signalTag(d.signal)}</td>`;
         domBody.appendChild(row);
     });
 
@@ -316,12 +711,13 @@
         const pct = d.fc1 / emgMax * 100;
         const tCls = d.trend > 0.3 ? 'up' : d.trend < -0.3 ? 'down' : '';
         const tSign = d.trend >= 0 ? '+' : '';
+        const tColor = tCls === 'up' ? 'var(--green)' : tCls === 'down' ? 'var(--red)' : 'var(--warm-gray)';
         const row = document.createElement('tr');
-        row.innerHTML = `<td class="num" style="color:var(--text-dim)">${i+1}</td><td class="cat-name">${name}</td><td class="num">${d.series[14].toFixed(1)}%</td><td class="num" style="font-weight:600;color:var(--blue)">${d.fc1.toFixed(1)}%</td><td class="bar-cell"><div class="bar-bg blue" style="width:${pct}%"></div><div class="bar-fg blue" style="width:${pct}%"></div></td><td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td><td><span class="${tCls}" style="color:${tCls==='up'?'var(--accent2)':tCls==='down'?'var(--red)':'var(--text-dim)'}">${tSign}${d.trend.toFixed(1)}pp</span></td>`;
+        row.innerHTML = `<td class="num" style="color:var(--warm-gray)">${i+1}</td><td class="cat-name">${name}</td><td class="num">${d.series[14].toFixed(1)}%</td><td class="num" style="font-weight:700;color:var(--navy)">${d.fc1.toFixed(1)}%</td><td class="bar-cell"><div class="bar-bg" style="width:${pct}%"></div><div class="bar-fg gold" style="width:${pct}%"></div></td><td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td><td><span style="color:${tColor};font-weight:600">${tSign}${d.trend.toFixed(1)}pp</span></td>`;
         emgBody.appendChild(row);
     });
 
-    // Sparklines helper
+    // Sparklines
     function renderSparks(containerId, data, color) {
         const grid = document.getElementById(containerId);
         Object.entries(data).forEach(([cat, d]) => {
@@ -344,11 +740,10 @@
         });
     }
 
-    // Show top 10 for each
     const domTop10 = Object.fromEntries(domEntries.slice(0,10));
     const emgTop10 = Object.fromEntries(emgEntries.slice(0,10));
-    renderSparks('dom-sparks', domTop10, 'var(--accent2)');
-    renderSparks('emg-sparks', emgTop10, 'var(--blue)');
+    renderSparks('dom-sparks', domTop10, '#4A4AFB');
+    renderSparks('emg-sparks', emgTop10, '#E8A121');
     </script>
 </body>
 </html>
