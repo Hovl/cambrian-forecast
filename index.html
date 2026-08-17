@@ -119,7 +119,7 @@
         <header>
             <div class="kicker">YC Category Forecast · August 2026</div>
             <h1>Which YC Category Will<br>Dominate Next Batch?</h1>
-            <p class="subtitle">Two complementary forecasts: which categories hold the most share, and which niches are breaking out — based on 6,179 companies across 15 batches.</p>
+            <p class="subtitle">A two-lens view of YC category formation: macro trends showing which categories dominate, paired with micro signals detecting emerging niches — from 6,179 companies across 15 batches.</p>
             <div class="meta">
                 <span><span class="dot"></span> 15 batches (S21–S26)</span>
                 <span><span class="dot"></span> 75 formations</span>
@@ -147,14 +147,14 @@
         <div class="tab-bar">
             <button class="tab-btn active" data-tab="dominance">🏆 Dominance</button>
             <button class="tab-btn" data-tab="emergence">🚀 Emergence</button>
-            <button class="tab-btn" data-tab="compare">⚖️ vs Cambrian Signal</button>
+            <button class="tab-btn" data-tab="combine">🔗 Combined View</button>
         </div>
 
         <!-- DOMINANCE TAB -->
         <div class="tab-panel active" id="tab-dominance">
             <section>
                 <h2><span class="icon">📊</span> Dominance Forecast</h2>
-                <p>Which categories will hold the most share of the next YC batch? Predicted from 15 historical data points per category.</p>
+                <p>The macro lens: which categories will hold the most share of the next YC batch. Predicted from 15 historical data points per category, weighted by absolute company count.</p>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>#</th><th>Category</th><th class="num">Current</th><th class="num">Forecast</th><th style="min-width:140px">Distribution</th><th class="num">Q10–Q90</th><th>Signal</th></tr></thead>
@@ -173,7 +173,7 @@
         <div class="tab-panel" id="tab-emergence">
             <section>
                 <h2><span class="icon">🚀</span> Emergence Forecast</h2>
-                <p>Which niche categories are breaking out? These are the small but fast-growing segments Cambrian Signal flags as emerging.</p>
+                <p>The micro lens: which niche categories are breaking out from small bases. These are fast-growing segments detected via <a href="https://cambrian.jafar.com/" style="color:var(--blue)">Cambrian Signal's</a> formation analysis and validated with time series trend data.</p>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>#</th><th>Category</th><th class="num">Current</th><th class="num">Forecast</th><th style="min-width:140px">Distribution</th><th class="num">Q10–Q90</th><th>Trend</th></tr></thead>
@@ -189,39 +189,38 @@
         </div>
 
         <!-- COMPARE TAB -->
-        <div class="tab-panel" id="tab-compare">
+        <div class="tab-panel" id="tab-combine">
             <section>
-                <h2><span class="icon">⚖️</span> Our Forecast vs Cambrian Signal</h2>
-                <p>Cambrian Signal's "What's Next" detects emerging categories via momentum on formation share. Our forecast extrapolates time series to predict next-batch share. They answer different questions.</p>
+                <h2><span class="icon">🔗</span> How the Two Lenses Work Together</h2>
+                <p>The dominance lens tracks <strong>volume</strong> — which categories have the most companies and where that share is heading. The emergence lens tracks <strong>velocity</strong> — which small categories are accelerating and might become the next big thing. Neither alone tells the full story.</p>
                 <div class="compare-grid">
                     <div class="compare-card agree">
-                        <h3>✓ Where They Agree</h3>
+                        <h3>✓ Converging Signals</h3>
                         <ul class="compare-list">
-                            <li><span class="cat">Hard Tech</span> — both flag as growing (+1.5pp trend, 4.30× on Cambrian)</li>
-                            <li><span class="cat">Hardware</span> — both see growth (5.49× on Cambrian, +2.76pp share gain)</li>
-                            <li><span class="cat">Manufacturing & Robotics</span> — both flag breakout (7.78× on Cambrian)</li>
-                            <li><span class="cat">Developer Tools declining</span> — Cambrian's #1 mover (down), we show 20%→10%</li>
-                            <li><span class="cat">Security</span> — Cambrian sees 1.93× growth, we predict 1.7% share</li>
-                            <li><span class="cat">Defense</span> — Cambrian sees 3.48× growth, we see +0.3pp trend</li>
+                            <li><span class="cat">Hard Tech</span> — both lenses see growth: emergence detects 4.30× momentum, dominance shows +1.5pp trend. High-confidence signal.</li>
+                            <li><span class="cat">Hardware & Manufacturing</span> — emergence flags 5–8× multipliers, dominance confirms upward trajectory. Physical-world tech is the real deal.</li>
+                            <li><span class="cat">Developer Tools declining</span> — emergence detects the biggest negative mover, dominance confirms the share halved (20%→10%). A category dissolving into verticals.</li>
+                            <li><span class="cat">Defense & Security</span> — emergence sees 3.5× and 1.9× growth from small bases. Dominance shows these are still niche by volume but trending up. Worth watching.</li>
                         </ul>
                     </div>
                     <div class="compare-card diverge">
-                        <h3>△ Where They Diverge</h3>
+                        <h3>△ Complementary Views</h3>
                         <ul class="compare-list">
-                            <li><span class="cat">Cambrian sees niches we miss</span> — Autonomous Drones (4.15×), Drug Discovery (3.69×), Browser Agents (7.80×). Too small for share dominance but growing fast.</li>
-                            <li><span class="cat">We see broad shifts</span> — Industrials breakout (5%→23%), Fintech recovery. Cambrian's granularity buries these under sub-categories.</li>
-                            <li><span class="cat">Cambrian flags Reinforcement Learning</span> at 4.17× but we see it flat/declining in share — the absolute numbers are still tiny.</li>
-                            <li><span class="cat">Our model predicts Robotics mean-reversion</span> (11.8%→5.7%) but Cambrian sees Manufacturing & Robotics still accelerating.</li>
+                            <li><span class="cat">Emergence catches early signals dominance can't see</span> — Browser Agents (7.80×), Drug Discovery (3.69×), Autonomous Drones (4.15×). These are too small to move the share needle today, but emergence detects them before they show up in dominance rankings.</li>
+                            <li><span class="cat">Dominance catches broad shifts emergence can't see</span> — Industrials (5%→23% of batch) is a massive macro trend, but it's a broad industry tag, not a niche. Fintech's recovery is invisible to emergence because it's a comeback, not a new formation.</li>
+                            <li><span class="cat">RL is an example of the lenses diverging</span> — emergence sees 4.17× momentum (big multiplier on tiny base), dominance sees it flat. Emergence is right that something is happening; dominance is right that it's not yet material by volume.</li>
+                            <li><span class="cat">Robotics shows why you need both</span> — emergence says Manufacturing & Robotics is still accelerating; dominance predicts mean-reversion from an S26 spike. The truth is probably somewhere between: real growth masked by batch-to-batch variance.</li>
                         </ul>
                     </div>
                 </div>
             </section>
             <section>
-                <h2><span class="icon">💡</span> Key Insight</h2>
+                <h2><span class="icon">💡</span> Reading the Signals Together</h2>
                 <div class="method-box">
-                    <p><strong>Cambrian Signal detects EMERGENCE</strong> — small fast-growing niches that represent the next new thing (Browser Agents, Autonomous Drones, Drug Discovery). They rank by multiplier on small bases.</p>
-                    <p style="margin-top:.5rem"><strong>Our forecast predicts DOMINANCE</strong> — which categories hold the most companies in the next batch. We rank by absolute share percentage.</p>
-                    <p style="margin-top:.5rem"><strong>Together they tell the full story:</strong> AI and Industrials will dominate by volume, but the most interesting action is in niches like Coding Agents, Hard Tech, and Defense where Cambrian's momentum signal aligns with our upward trend forecasts.</p>
+                    <p><strong>When both lenses agree</strong> (Hard Tech, Hardware, Manufacturing) → high conviction. These categories are growing AND gaining share. The signal is strong across both velocity and volume.</p>
+                    <p style="margin-top:.5rem"><strong>When emergence is ahead of dominance</strong> (Browser Agents, Drug Discovery, Autonomous Drones) → early signal. These are the categories to watch. They're too small to matter by volume today, but if the emergence signal sustains, they'll show up in dominance next cycle.</p>
+                    <p style="margin-top:.5rem"><strong>When dominance shows something emergence doesn't</strong> (Industrials, Fintech recovery) → macro shift. These are broad structural changes in what types of companies YC funds, not niche breakouts.</p>
+                    <p style="margin-top:.5rem"><strong>The highest-conviction read for S27:</strong> AI remains dominant by volume, Industrials is the macro story, and the most interesting emerging signals are in Hard Tech, Coding Agents, and Defense — where both lenses point in the same direction.</p>
                 </div>
             </section>
         </div>
@@ -233,7 +232,7 @@
                 <p><strong>Data:</strong> <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal</a> (YC formation data, version <code>yc-2026-08-14-semantic-v7</code>) + <a href="https://yc-oss.github.io/api/companies/all.json" style="color:var(--accent2)">YC OSS API</a> (6,179 companies).</p>
                 <p style="margin-top:.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes 94–398). Emergence categories use keyword matching on company descriptions where YC tags don't exist.</p>
                 <p style="margin-top:.5rem"><strong>Model:</strong> Time series forecasting, zero-shot. 2-step ahead point forecast + quantile outputs (10th–90th percentile).</p>
-                <p style="margin-top:.5rem"><strong>Cambrian comparison:</strong> Their "What's Next" whisper rankings detect formation momentum (× multiplier on share change). We compare their signal direction against our trend forecasts.</p>
+                <p style="margin-top:.5rem"><strong>Emergence data:</strong> Niche category signals informed by <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal's</a> formation momentum analysis. Their whisper rankings detect × multiplier on share change; we validate those signals against per-batch time series trends.</p>
             </div>
         </section>
 
