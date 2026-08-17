@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YC Category Forecast — TimesFM × Cambrian Signal</title>
+    <meta name="description" content="Time series forecast of YC startup category emergence using Google TimesFM 2.5, based on Cambrian Signal data from 6,179 YC companies across 15 batches (S21–S26).">
+    <meta property="og:title" content="YC Category Forecast — TimesFM × Cambrian Signal">
+    <meta property="og:description" content="Which startup category will dominate the next YC batch? A zero-shot time series forecast using Google's TimesFM 2.5 foundation model.">
+    <meta property="og:type" content="article">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --surface2: #1a1a26;
+            --border: #2a2a3a;
+            --text: #e0e0e8;
+            --text-dim: #8888a0;
+            --accent: #6da31c;
+            --accent2: #8bc34a;
+            --blue: #4a9eff;
+            --red: #ff6b6b;
+            --orange: #ffaa40;
+            --purple: #b388ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+        }
+
+        .kicker {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: inline-block;
+        }
+
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2 .icon {
+            font-size: 1.1rem;
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-dim);
+        }
+
+        /* Winner card */
+        .winner-card {
+            background: linear-gradient(135deg, #1a2a10 0%, #121a0e 100%);
+            border: 1px solid #2a4a1a;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winner-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(109,163,28,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .winner-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .winner-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent2);
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-stat {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .winner-stat strong {
+            color: var(--accent2);
+        }
+
+        /* Forecast table */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        thead th {
+            background: var(--surface2);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        thead th.num {
+            text-align: right;
+        }
+
+        tbody td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(109,163,28,0.04);
+        }
+
+        .cat-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .tag-up { background: rgba(109,163,28,0.15); color: var(--accent2); }
+        .tag-down { background: rgba(255,107,107,0.12); color: var(--red); }
+        .tag-hot { background: rgba(255,170,64,0.15); color: var(--orange); }
+        .tag-wild { background: rgba(179,136,255,0.15); color: var(--purple); }
+
+        .bar-cell {
+            position: relative;
+            min-width: 120px;
+        }
+
+        .bar-bg {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 6px;
+            border-radius: 3px;
+            background: var(--accent);
+            opacity: 0.3;
+            transition: width 0.6s ease;
+        }
+
+        .bar-fg {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 6px;
+            border-radius: 3px;
+            background: var(--accent2);
+            transition: width 0.6s ease;
+        }
+
+        .bar-label {
+            position: relative;
+            z-index: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ci {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+        }
+
+        /* Sparkline charts */
+        .spark-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .spark-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+        }
+
+        .spark-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.75rem;
+        }
+
+        .spark-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .spark-value {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .spark-value .up { color: var(--accent2); }
+        .spark-value .down { color: var(--red); }
+
+        .spark-svg {
+            width: 100%;
+            height: 48px;
+            display: block;
+        }
+
+        /* Momentum section */
+        .momentum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .momentum-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .momentum-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.35rem;
+        }
+
+        .momentum-stat {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .momentum-sub {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        .momentum-stat.up { color: var(--accent2); }
+        .momentum-stat.down { color: var(--red); }
+
+        /* Decline section */
+        .decline-list {
+            list-style: none;
+            margin-top: 0.75rem;
+        }
+
+        .decline-list li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .decline-list li:last-child {
+            border-bottom: none;
+        }
+
+        .decline-name {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .decline-detail {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+        }
+
+        .decline-detail .val {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        /* Methodology */
+        .method-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+        }
+
+        .method-box strong {
+            color: var(--text);
+        }
+
+        .method-box code {
+            background: var(--surface2);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            color: var(--accent2);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        footer a {
+            color: var(--accent2);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 1rem; }
+            header { padding: 2rem 0 1.5rem; }
+            .meta { flex-direction: column; gap: 0.5rem; }
+            .spark-grid { grid-template-columns: 1fr; }
+            .momentum-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="kicker">Time Series Forecast · August 2026</div>
+            <h1>Which YC Category Will<br>Dominate Next Batch?</h1>
+            <p class="subtitle">A zero-shot forecast using Google's TimesFM 2.5 foundation model on Cambrian Signal formation data from 6,179 YC companies.</p>
+            <div class="meta">
+                <span><span class="dot"></span> 15 batches analyzed (S21–S26)</span>
+                <span><span class="dot"></span> 75 category formations</span>
+                <span><span class="dot"></span> TimesFM 2.5 · 200M params</span>
+            </div>
+        </header>
+
+        <section>
+            <div class="winner-card">
+                <div class="winner-label">★ Forecast: Top Emerging Category for S27</div>
+                <div class="winner-name">Industrials</div>
+                <div class="winner-stat">
+                    <strong>+7.6pp</strong> momentum · <strong>23.1%</strong> of S26 batch · <strong>4.5×</strong> growth since S21
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2><span class="icon">📊</span> Forecast: Next Batch Share</h2>
+            <p>TimesFM predicts category share of the next YC batch. The model sees 15 data points per category (one per batch, S21–S26) and forecasts 1 step ahead.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th class="num">Current</th>
+                            <th class="num">Forecast</th>
+                            <th style="min-width:140px">Distribution</th>
+                            <th class="num">Q10–Q90</th>
+                            <th>Signal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="forecast-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2><span class="icon">📈</span> Category Trajectories</h2>
+            <p>Share of batch over time for the top categories. Each point is one YC batch; the dashed segment is the TimesFM forecast.</p>
+            <div class="spark-grid" id="spark-grid"></div>
+        </section>
+
+        <section>
+            <h2><span class="icon">🔥</span> Momentum Leaders</h2>
+            <p>Categories gaining the most share in the most recent 3 batches vs. the prior 3. Acceleration measures whether the trend is strengthening.</p>
+            <div class="momentum-grid" id="momentum-grid"></div>
+        </section>
+
+        <section>
+            <h2><span class="icon">📉</span> Declining Categories</h2>
+            <p>Once-dominant categories losing share as AI becomes infrastructure and SaaS dissolves into vertical solutions.</p>
+            <ul class="decline-list" id="decline-list"></ul>
+        </section>
+
+        <section>
+            <h2><span class="icon">🔬</span> Methodology</h2>
+            <div class="method-box">
+                <p><strong>Data source:</strong> <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal</a> (YC formation data, 6,179 companies, version <code>yc-2026-08-14-semantic-v7</code>) cross-referenced with the <a href="https://yc-oss.github.io/api/companies/all.json" style="color:var(--accent2)">YC OSS API</a>.</p>
+                <p style="margin-top:0.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes range from 94 to 398). This removes batch-size bias.</p>
+                <p style="margin-top:0.5rem"><strong>Model:</strong> Google <a href="https://arxiv.org/abs/2310.10688" style="color:var(--accent2)">TimesFM 2.5</a> (200M params, PyTorch). Zero-shot — no fine-tuning. Config: <code>max_context=1024</code>, <code>max_horizon=16</code>, <code>normalize_inputs=True</code>, <code>use_continuous_quantile_head=True</code>, <code>force_flip_invariance=True</code>, <code>infer_is_positive=True</code>.</p>
+                <p style="margin-top:0.5rem"><strong>Forecast:</strong> 1-step and 2-step ahead point forecast + 10 quantile outputs (mean, 10th–90th percentile). Confidence intervals reflect model uncertainty, not historical volatility.</p>
+                <p style="margin-top:0.5rem"><strong>Limitations:</strong> YC batches are discrete events, not regular time series. Batch composition is curated by YC, not market-driven. TimesFM assumes stationarity after normalization; structural breaks (e.g., "AI" splitting into subcategories) may not be captured. 15 data points is short-context; the model's zero-shot strength compensates but wider CIs should be expected.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Generated with <a href="https://github.com/google-research/timesfm">TimesFM 2.5</a> × <a href="https://cambrian.jafar.com/">Cambrian Signal</a> · August 17, 2026</p>
+            <p style="margin-top:0.35rem">Data reflects YC batches S21 (Summer 2021) through S26 (Summer 2026). Forecast is for the next unannounced batch.</p>
+        </footer>
+    </div>
+
+    <script>
+    // ── DATA ──
+    const batches = ['S21','W22','S22','W23','S23','W24','S24','F24','W25','Sp25','S25','F25','W26','Sp26','S26'];
+    const batchTotals = {S21:391,W22:398,S22:234,W23:274,S23:220,W24:248,S24:248,F24:94,W25:167,Sp25:143,S25:166,F25:146,W26:198,Sp26:196,S26:229};
+
+    const categories = {
+        'Industrials':            {counts:[20,24,14,6,6,9,25,5,19,15,14,12,28,25,53], forecast:17.0, q10:8.7, q50:17.0, q90:26.2, signal:'up'},
+        'AI':                     {counts:[39,53,45,64,62,78,85,35,39,46,49,45,14,11,71], forecast:29.9, q10:16.0, q50:29.9, q90:40.3, signal:'stable'},
+        'Artificial Intelligence':{counts:[44,57,45,58,74,93,80,24,54,38,50,42,19,13,75], forecast:28.6, q10:14.5, q50:28.6, q90:40.3, signal:'stable'},
+        'Fintech':                {counts:[144,182,96,66,38,35,34,8,24,12,13,12,22,22,30], forecast:13.1, q10:8.2, q50:13.1, q90:20.4, signal:'up'},
+        'Healthcare':             {counts:[80,63,33,36,48,42,32,14,17,17,14,16,17,18,28], forecast:11.1, q10:7.1, q50:11.1, q90:16.0, signal:'stable'},
+        'SaaS':                   {counts:[120,106,68,86,43,31,39,16,26,14,17,11,5,6,23], forecast:12.2, q10:2.9, q50:12.2, q90:23.1, signal:'recovery'},
+        'Developer Tools':        {counts:[33,34,24,49,32,31,32,19,16,20,23,15,4,8,22], forecast:10.4, q10:3.9, q50:10.4, q90:16.8, signal:'stable'},
+        'Robotics':               {counts:[3,5,3,1,0,5,9,1,5,9,5,8,2,4,27], forecast:5.7, q10:1.9, q50:5.7, q90:10.9, signal:'wild'},
+        'Hard Tech':              {counts:[9,11,2,2,2,2,11,1,5,6,2,4,3,4,21], forecast:4.1, q10:1.4, q50:4.1, q90:7.9, signal:'up'},
+        'Infrastructure':         {counts:[3,6,3,6,12,7,11,5,6,9,10,7,7,3,20], forecast:4.8, q10:1.3, q50:4.8, q90:8.7, signal:'down'},
+        'Hardware':               {counts:[6,10,2,1,2,1,8,0,8,6,6,5,3,3,17], forecast:3.5, q10:0.8, q50:3.5, q90:6.9, signal:'down'},
+        'Consumer':               {counts:[51,77,41,33,17,45,37,19,18,17,17,26,9,20,17], forecast:10.7, q10:3.8, q50:10.7, q90:17.6, signal:'recovery'},
+        'Reinforcement Learning': {counts:[0,0,0,2,0,3,1,1,4,5,4,3,2,0,14], forecast:2.3, q10:0.2, q50:2.3, q90:5.4, signal:'down'},
+        'Manufacturing':          {counts:[4,8,3,2,4,3,10,2,5,9,4,4,0,1,18], forecast:3.1, q10:0.3, q50:3.1, q90:6.9, signal:'down'},
+        'Machine Learning':       {counts:[20,24,11,12,11,6,10,6,5,8,4,5,3,0,12], forecast:null, q10:null, q50:null, q90:null, signal:'down'}
+    };
+
+    const broadLabels = new Set(['AI', 'Artificial Intelligence', 'SaaS', 'Consumer']);
+
+    // ── HELPERS ──
+    function share(counts, i) {
+        return (counts[i] / batchTotals[batches[i]] * 100);
+    }
+
+    function shares(counts) {
+        return counts.map((c, i) => share(counts, i));
+    }
+
+    // ── FORECAST TABLE ──
+    const forecastData = Object.entries(categories)
+        .filter(([_, d]) => d.forecast !== null)
+        .map(([name, d]) => {
+            const s = shares(d.counts);
+            const current = s[s.length - 1];
+            return { name, current, forecast: d.forecast, q10: d.q10, q50: d.q50, q90: d.q90, signal: d.signal, shares: s };
+        })
+        .sort((a, b) => b.forecast - a.forecast);
+
+    const maxForecast = Math.max(...forecastData.map(d => d.forecast));
+    const tbody = document.getElementById('forecast-body');
+
+    forecastData.forEach((d, i) => {
+        const pct = (d.forecast / maxForecast * 100);
+        const signalTag = {
+            up: '<span class="tag tag-up">▲ Emerging</span>',
+            down: '<span class="tag tag-down">▼ Declining</span>',
+            stable: '<span class="tag tag-hot">— Stable</span>',
+            recovery: '<span class="tag tag-up">↻ Recovery</span>',
+            wild: '<span class="tag tag-wild">⚡ Volatile</span>'
+        }[d.signal] || '';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="num" style="color:var(--text-dim)">${i + 1}</td>
+            <td class="cat-name">${d.name}</td>
+            <td class="num">${d.current.toFixed(1)}%</td>
+            <td class="num" style="font-weight:600;color:var(--accent2)">${d.forecast.toFixed(1)}%</td>
+            <td class="bar-cell">
+                <div class="bar-bg" style="width:${pct}%"></div>
+                <div class="bar-fg" style="width:${pct}%"></div>
+            </td>
+            <td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td>
+            <td>${signalTag}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    // ── SPARKLINES ──
+    const sparkCategories = ['Industrials','AI','Fintech','Healthcare','SaaS','Robotics','Developer Tools','Hard Tech','Consumer','Infrastructure'];
+    const sparkGrid = document.getElementById('spark-grid');
+
+    sparkCategories.forEach(cat => {
+        const d = categories[cat];
+        const s = shares(d.counts);
+        const allVals = [...s];
+        if (d.forecast !== null) allVals.push(d.forecast);
+        const max = Math.max(...allVals);
+        const min = Math.min(...allVals);
+        const range = max - min || 1;
+
+        const W = 260, H = 48, PAD = 4;
+        const xStep = (W - PAD * 2) / (s.length - 1);
+        const yScale = v => H - PAD - ((v - min) / range) * (H - PAD * 2);
+
+        let pathD = s.map((v, i) => `${i === 0 ? 'M' : 'L'}${PAD + i * xStep},${yScale(v)}`).join(' ');
+
+        // Forecast point
+        const lastX = PAD + (s.length - 1) * xStep;
+        const fcX = PAD + s.length * xStep;
+        let forecastLine = '';
+        if (d.forecast !== null) {
+            forecastLine = `<line x1="${lastX}" y1="${yScale(s[s.length-1])}" x2="${fcX}" y2="${yScale(d.forecast)}" stroke="var(--accent2)" stroke-width="1.5" stroke-dasharray="4,3" />`;
+            forecastLine += `<circle cx="${fcX}" cy="${yScale(d.forecast)}" r="3" fill="var(--accent2)" />`;
+        }
+
+        const lastVal = s[s.length - 1];
+        const prevVal = s[s.length - 2];
+        const delta = lastVal - prevVal;
+        const deltaClass = delta >= 0 ? 'up' : 'down';
+        const deltaStr = delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+
+        const card = document.createElement('div');
+        card.className = 'spark-card';
+        card.innerHTML = `
+            <div class="spark-header">
+                <span class="spark-title">${cat}</span>
+                <span class="spark-value">${lastVal.toFixed(1)}% <span class="${deltaClass}">${deltaStr}pp</span></span>
+            </div>
+            <svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+                <path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="1.5" />
+                ${forecastLine}
+                <circle cx="${lastX}" cy="${yScale(lastVal)}" r="2.5" fill="var(--accent)" />
+            </svg>
+        `;
+        sparkGrid.appendChild(card);
+    });
+
+    // ── MOMENTUM ──
+    const momentumData = Object.entries(categories)
+        .filter(([_, d]) => d.counts && d.forecast !== null)
+        .map(([name, d]) => {
+            const s = shares(d.counts);
+            const recent = (s[12] + s[13] + s[14]) / 3;
+            const mid = (s[9] + s[10] + s[11]) / 3;
+            const early = s.slice(0, 6).reduce((a, b) => a + b, 0) / 6;
+            const trend = recent - mid;
+            const accel = trend - (mid - early);
+            return { name, trend, accel, recent, current: s[14] };
+        })
+        .filter(d => !broadLabels.has(d.name))
+        .sort((a, b) => b.trend - a.trend);
+
+    const momentumGrid = document.getElementById('momentum-grid');
+    momentumData.slice(0, 6).forEach(d => {
+        const cls = d.trend >= 0 ? 'up' : 'down';
+        const sign = d.trend >= 0 ? '+' : '';
+        const card = document.createElement('div');
+        card.className = 'momentum-card';
+        card.innerHTML = `
+            <div class="momentum-name">${d.name}</div>
+            <div class="momentum-stat ${cls}">${sign}${d.trend.toFixed(1)}pp</div>
+            <div class="momentum-sub">Current: ${d.current.toFixed(1)}% · Accel: ${d.accel >= 0 ? '+' : ''}${d.accel.toFixed(1)}pp</div>
+        `;
+        momentumGrid.appendChild(card);
+    });
+
+    // ── DECLINES ──
+    const declineData = Object.entries(categories)
+        .filter(([_, d]) => d.counts)
+        .map(([name, d]) => {
+            const s = shares(d.counts);
+            const peak = Math.max(...s);
+            const peakIdx = s.indexOf(peak);
+            const current = s[s.length - 1];
+            return { name, peak, peakBatch: batches[peakIdx], current, drop: current - peak };
+        })
+        .filter(d => d.drop < -5)
+        .sort((a, b) => a.drop - b.drop);
+
+    const declineList = document.getElementById('decline-list');
+    declineData.forEach(d => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span class="decline-name">${d.name}</span>
+            <span class="decline-detail">Peak ${d.peak.toFixed(1)}% (${d.peakBatch}) → <span class="val">${d.current.toFixed(1)}%</span> · ${d.drop.toFixed(1)}pp</span>
+        `;
+        declineList.appendChild(li);
+    });
+    </script>
+</body>
+</html>
