@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YC Category Forecast — TimesFM × Cambrian Signal</title>
-    <meta name="description" content="Time series forecast of YC startup category emergence using Google TimesFM 2.5, based on Cambrian Signal data from 6,179 YC companies across 15 batches (S21–S26).">
-    <meta property="og:title" content="YC Category Forecast — TimesFM × Cambrian Signal">
-    <meta property="og:description" content="Which startup category will dominate the next YC batch? A zero-shot time series forecast using Google's TimesFM 2.5 foundation model.">
+    <title>YC Category Forecast — Cambrian Signal</title>
+    <meta name="description" content="Time series forecast of YC startup category emergence based on Cambrian Signal data from 6,179 YC companies across 15 batches (S21–S26).">
+    <meta property="og:title" content="YC Category Forecast — Cambrian Signal">
+    <meta property="og:description" content="Which startup category will dominate the next YC batch? A time series forecast of YC startup category emergence from 6,179 companies.">
     <meta property="og:type" content="article">
     <style>
         :root {
@@ -451,11 +451,11 @@
         <header>
             <div class="kicker">Time Series Forecast · August 2026</div>
             <h1>Which YC Category Will<br>Dominate Next Batch?</h1>
-            <p class="subtitle">A zero-shot forecast using Google's TimesFM 2.5 foundation model on Cambrian Signal formation data from 6,179 YC companies.</p>
+            <p class="subtitle">A time series forecast of YC startup category emergence based on Cambrian Signal data from 6,179 companies.</p>
             <div class="meta">
                 <span><span class="dot"></span> 15 batches analyzed (S21–S26)</span>
                 <span><span class="dot"></span> 75 category formations</span>
-                <span><span class="dot"></span> TimesFM 2.5 · 200M params</span>
+                <span><span class="dot"></span> 6,179 companies analyzed</span>
             </div>
         </header>
 
@@ -471,7 +471,7 @@
 
         <section>
             <h2><span class="icon">📊</span> Forecast: Next Batch Share</h2>
-            <p>TimesFM predicts category share of the next YC batch. The model sees 15 data points per category (one per batch, S21–S26) and forecasts 1 step ahead.</p>
+            <p>Predicted category share of the next YC batch based on 15 historical data points per category (one per batch, S21–S26).</p>
             <div class="table-wrap">
                 <table>
                     <thead>
@@ -492,7 +492,7 @@
 
         <section>
             <h2><span class="icon">📈</span> Category Trajectories</h2>
-            <p>Share of batch over time for the top categories. Each point is one YC batch; the dashed segment is the TimesFM forecast.</p>
+            <p>Share of batch over time for the top categories. Each point is one YC batch; the dashed segment is the forecast.</p>
             <div class="spark-grid" id="spark-grid"></div>
         </section>
 
@@ -513,14 +513,14 @@
             <div class="method-box">
                 <p><strong>Data source:</strong> <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal</a> (YC formation data, 6,179 companies, version <code>yc-2026-08-14-semantic-v7</code>) cross-referenced with the <a href="https://yc-oss.github.io/api/companies/all.json" style="color:var(--accent2)">YC OSS API</a>.</p>
                 <p style="margin-top:0.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes range from 94 to 398). This removes batch-size bias.</p>
-                <p style="margin-top:0.5rem"><strong>Model:</strong> Google <a href="https://arxiv.org/abs/2310.10688" style="color:var(--accent2)">TimesFM 2.5</a> (200M params, PyTorch). Zero-shot — no fine-tuning. Config: <code>max_context=1024</code>, <code>max_horizon=16</code>, <code>normalize_inputs=True</code>, <code>use_continuous_quantile_head=True</code>, <code>force_flip_invariance=True</code>, <code>infer_is_positive=True</code>.</p>
+                <p style="margin-top:0.5rem"><strong>Model:</strong> Time series forecasting model. Zero-shot — no fine-tuning. Config: <code>max_context=1024</code>, <code>max_horizon=16</code>, <code>normalize_inputs=True</code>, <code>use_continuous_quantile_head=True</code>, <code>force_flip_invariance=True</code>, <code>infer_is_positive=True</code>.</p>
                 <p style="margin-top:0.5rem"><strong>Forecast:</strong> 1-step and 2-step ahead point forecast + 10 quantile outputs (mean, 10th–90th percentile). Confidence intervals reflect model uncertainty, not historical volatility.</p>
-                <p style="margin-top:0.5rem"><strong>Limitations:</strong> YC batches are discrete events, not regular time series. Batch composition is curated by YC, not market-driven. TimesFM assumes stationarity after normalization; structural breaks (e.g., "AI" splitting into subcategories) may not be captured. 15 data points is short-context; the model's zero-shot strength compensates but wider CIs should be expected.</p>
+                <p style="margin-top:0.5rem"><strong>Limitations:</strong> YC batches are discrete events, not regular time series. Batch composition is curated by YC, not market-driven. The model assumes stationarity after normalization; structural breaks (e.g., "AI" splitting into subcategories) may not be captured. 15 data points is short-context; wider confidence intervals should be expected.</p>
             </div>
         </section>
 
         <footer>
-            <p>Generated with <a href="https://github.com/google-research/timesfm">TimesFM 2.5</a> × <a href="https://cambrian.jafar.com/">Cambrian Signal</a> · August 17, 2026</p>
+            <p>Generated with <a href="https://cambrian.jafar.com/">Cambrian Signal</a> data · August 17, 2026</p>
             <p style="margin-top:0.35rem">Data reflects YC batches S21 (Summer 2021) through S26 (Summer 2026). Forecast is for the next unannounced batch.</p>
         </footer>
     </div>
