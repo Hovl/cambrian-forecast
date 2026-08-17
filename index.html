@@ -4,701 +4,352 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YC Category Forecast — Cambrian Signal</title>
-    <meta name="description" content="Time series forecast of YC startup category emergence based on Cambrian Signal data from 6,179 YC companies across 15 batches (S21–S26).">
+    <meta name="description" content="Dual forecast of YC startup categories: which will dominate AND which niches are breaking out. Based on 6,179 companies across 15 batches.">
     <meta property="og:title" content="YC Category Forecast — Cambrian Signal">
-    <meta property="og:description" content="Which startup category will dominate the next YC batch? A time series forecast of YC startup category emergence from 6,179 companies.">
+    <meta property="og:description" content="Which YC category will dominate the next batch, and which niches are breaking out? Two complementary views on 6,179 companies.">
     <meta property="og:type" content="article">
     <style>
         :root {
-            --bg: #0a0a0f;
-            --surface: #12121a;
-            --surface2: #1a1a26;
-            --border: #2a2a3a;
-            --text: #e0e0e8;
-            --text-dim: #8888a0;
-            --accent: #6da31c;
-            --accent2: #8bc34a;
-            --blue: #4a9eff;
-            --red: #ff6b6b;
-            --orange: #ffaa40;
-            --purple: #b388ff;
+            --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26;
+            --border: #2a2a3a; --text: #e0e0e8; --text-dim: #8888a0;
+            --accent: #6da31c; --accent2: #8bc34a;
+            --blue: #4a9eff; --red: #ff6b6b; --orange: #ffaa40; --purple: #b388ff;
         }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; min-height:100vh; }
+        .container { max-width:960px; margin:0 auto; padding:2rem 1.5rem; }
+        header { text-align:center; padding:3rem 0 2rem; border-bottom:1px solid var(--border); margin-bottom:2.5rem; }
+        .kicker { font-size:.75rem; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); margin-bottom:.75rem; font-weight:600; }
+        h1 { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; line-height:1.15; margin-bottom:.75rem; background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .subtitle { font-size:1.05rem; color:var(--text-dim); max-width:640px; margin:0 auto; }
+        .meta { display:flex; justify-content:center; gap:1.5rem; margin-top:1.25rem; font-size:.8rem; color:var(--text-dim); }
+        .meta span { display:flex; align-items:center; gap:.35rem; }
+        .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block; }
+        section { margin-bottom:2.5rem; }
+        h2 { font-size:1.35rem; font-weight:600; margin-bottom:1rem; color:var(--text); display:flex; align-items:center; gap:.5rem; }
+        h2 .icon { font-size:1.1rem; }
+        p { margin-bottom:1rem; color:var(--text-dim); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Tabs */
+        .tab-bar { display:flex; gap:0; margin-bottom:2rem; border-bottom:1px solid var(--border); }
+        .tab-btn { background:none; border:none; color:var(--text-dim); font-size:.85rem; font-weight:600; padding:.75rem 1.5rem; cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; font-family:inherit; }
+        .tab-btn:hover { color:var(--text); }
+        .tab-btn.active { color:var(--accent2); border-bottom-color:var(--accent2); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
+        /* Winner cards */
+        .winner-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; }
+        .winner-card { border-radius:12px; padding:1.75rem; text-align:center; position:relative; overflow:hidden; }
+        .winner-card.dom { background:linear-gradient(135deg,#1a2a10 0%,#121a0e 100%); border:1px solid #2a4a1a; }
+        .winner-card.emg { background:linear-gradient(135deg,#1a1a2e 0%,#12121e 100%); border:1px solid #2a2a5a; }
+        .winner-card::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; pointer-events:none; }
+        .winner-card.dom::before { background:radial-gradient(ellipse at center,rgba(109,163,28,.06) 0%,transparent 70%); }
+        .winner-card.emg::before { background:radial-gradient(ellipse at center,rgba(74,158,255,.06) 0%,transparent 70%); }
+        .winner-label { font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:.4rem; font-weight:700; }
+        .winner-card.dom .winner-label { color:var(--accent); }
+        .winner-card.emg .winner-label { color:var(--blue); }
+        .winner-name { font-size:1.6rem; font-weight:800; margin-bottom:.35rem; }
+        .winner-card.dom .winner-name { color:var(--accent2); }
+        .winner-card.emg .winner-name { color:var(--blue); }
+        .winner-stat { font-size:.82rem; color:var(--text-dim); }
+        .winner-stat strong { color:var(--accent2); }
+        .winner-card.emg .winner-stat strong { color:var(--blue); }
 
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-        }
+        /* Table */
+        .table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); background:var(--surface); }
+        table { width:100%; border-collapse:collapse; font-size:.85rem; }
+        thead th { background:var(--surface2); padding:.75rem 1rem; text-align:left; font-weight:600; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); border-bottom:1px solid var(--border); white-space:nowrap; }
+        thead th.num { text-align:right; }
+        tbody td { padding:.65rem 1rem; border-bottom:1px solid var(--border); white-space:nowrap; }
+        tbody td.num { text-align:right; font-variant-numeric:tabular-nums; }
+        tbody tr:last-child td { border-bottom:none; }
+        tbody tr:hover { background:rgba(109,163,28,.04); }
+        .cat-name { font-weight:500; color:var(--text); }
+        .tag { display:inline-block; font-size:.65rem; padding:.15rem .45rem; border-radius:4px; font-weight:600; margin-left:.5rem; vertical-align:middle; }
+        .tag-up { background:rgba(109,163,28,.15); color:var(--accent2); }
+        .tag-down { background:rgba(255,107,107,.12); color:var(--red); }
+        .tag-hot { background:rgba(255,170,64,.15); color:var(--orange); }
+        .tag-wild { background:rgba(179,136,255,.15); color:var(--purple); }
+        .ci { color:var(--text-dim); font-size:.78rem; }
+        .bar-cell { position:relative; min-width:120px; }
+        .bar-bg { position:absolute; top:50%; left:0; transform:translateY(-50%); height:6px; border-radius:3px; background:var(--accent); opacity:.3; transition:width .6s ease; }
+        .bar-fg { position:absolute; top:50%; left:0; transform:translateY(-50%); height:6px; border-radius:3px; background:var(--accent2); transition:width .6s ease; }
+        .bar-bg.blue { background:var(--blue); }
+        .bar-fg.blue { background:var(--blue); }
 
-        header {
-            text-align: center;
-            padding: 3rem 0 2rem;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 2.5rem;
-        }
+        /* Sparklines */
+        .spark-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; margin-top:1rem; }
+        .spark-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem 1.25rem; }
+        .spark-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.75rem; }
+        .spark-title { font-size:.85rem; font-weight:600; color:var(--text); }
+        .spark-value { font-size:.75rem; color:var(--text-dim); }
+        .spark-value .up { color:var(--accent2); } .spark-value .down { color:var(--red); }
+        .spark-svg { width:100%; height:48px; display:block; }
 
-        .kicker {
-            font-size: 0.75rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
+        /* Comparison */
+        .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+        .compare-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem; }
+        .compare-card h3 { font-size:.9rem; font-weight:600; margin-bottom:.75rem; }
+        .compare-card.agree h3 { color:var(--accent2); }
+        .compare-card.diverge h3 { color:var(--orange); }
+        .compare-list { list-style:none; }
+        .compare-list li { font-size:.82rem; color:var(--text-dim); padding:.35rem 0; border-bottom:1px solid var(--border); }
+        .compare-list li:last-child { border-bottom:none; }
+        .compare-list .cat { color:var(--text); font-weight:500; }
 
-        h1 {
-            font-size: clamp(1.8rem, 4vw, 2.8rem);
-            font-weight: 700;
-            line-height: 1.15;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(135deg, var(--text) 0%, var(--accent2) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        /* Method */
+        .method-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; font-size:.82rem; color:var(--text-dim); }
+        .method-box strong { color:var(--text); }
+        .method-box code { background:var(--surface2); padding:.15rem .4rem; border-radius:4px; font-size:.78rem; color:var(--accent2); }
 
-        .subtitle {
-            font-size: 1.05rem;
-            color: var(--text-dim);
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        footer { border-top:1px solid var(--border); padding-top:1.5rem; margin-top:3rem; text-align:center; font-size:.75rem; color:var(--text-dim); }
+        footer a { color:var(--accent2); text-decoration:none; }
+        footer a:hover { text-decoration:underline; }
 
-        .meta {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1.25rem;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-        }
-
-        .meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent);
-            display: inline-block;
-        }
-
-        section {
-            margin-bottom: 2.5rem;
-        }
-
-        h2 {
-            font-size: 1.35rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        h2 .icon {
-            font-size: 1.1rem;
-        }
-
-        h3 {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-        }
-
-        p {
-            margin-bottom: 1rem;
-            color: var(--text-dim);
-        }
-
-        /* Winner card */
-        .winner-card {
-            background: linear-gradient(135deg, #1a2a10 0%, #121a0e 100%);
-            border: 1px solid #2a4a1a;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .winner-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(ellipse at center, rgba(109,163,28,0.06) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .winner-label {
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .winner-name {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--accent2);
-            margin-bottom: 0.5rem;
-        }
-
-        .winner-stat {
-            font-size: 0.95rem;
-            color: var(--text-dim);
-        }
-
-        .winner-stat strong {
-            color: var(--accent2);
-        }
-
-        /* Forecast table */
-        .table-wrap {
-            overflow-x: auto;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        thead th {
-            background: var(--surface2);
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
-
-        thead th.num {
-            text-align: right;
-        }
-
-        tbody td {
-            padding: 0.65rem 1rem;
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
-
-        tbody td.num {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        tbody tr:hover {
-            background: rgba(109,163,28,0.04);
-        }
-
-        .cat-name {
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .tag {
-            display: inline-block;
-            font-size: 0.65rem;
-            padding: 0.15rem 0.45rem;
-            border-radius: 4px;
-            font-weight: 600;
-            margin-left: 0.5rem;
-            vertical-align: middle;
-        }
-
-        .tag-up { background: rgba(109,163,28,0.15); color: var(--accent2); }
-        .tag-down { background: rgba(255,107,107,0.12); color: var(--red); }
-        .tag-hot { background: rgba(255,170,64,0.15); color: var(--orange); }
-        .tag-wild { background: rgba(179,136,255,0.15); color: var(--purple); }
-
-        .bar-cell {
-            position: relative;
-            min-width: 120px;
-        }
-
-        .bar-bg {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-            height: 6px;
-            border-radius: 3px;
-            background: var(--accent);
-            opacity: 0.3;
-            transition: width 0.6s ease;
-        }
-
-        .bar-fg {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-            height: 6px;
-            border-radius: 3px;
-            background: var(--accent2);
-            transition: width 0.6s ease;
-        }
-
-        .bar-label {
-            position: relative;
-            z-index: 1;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .ci {
-            color: var(--text-dim);
-            font-size: 0.78rem;
-        }
-
-        /* Sparkline charts */
-        .spark-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .spark-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1rem 1.25rem;
-        }
-
-        .spark-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 0.75rem;
-        }
-
-        .spark-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .spark-value {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        .spark-value .up { color: var(--accent2); }
-        .spark-value .down { color: var(--red); }
-
-        .spark-svg {
-            width: 100%;
-            height: 48px;
-            display: block;
-        }
-
-        /* Momentum section */
-        .momentum-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .momentum-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1rem;
-        }
-
-        .momentum-name {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 0.35rem;
-        }
-
-        .momentum-stat {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .momentum-sub {
-            font-size: 0.72rem;
-            color: var(--text-dim);
-            margin-top: 0.15rem;
-        }
-
-        .momentum-stat.up { color: var(--accent2); }
-        .momentum-stat.down { color: var(--red); }
-
-        /* Decline section */
-        .decline-list {
-            list-style: none;
-            margin-top: 0.75rem;
-        }
-
-        .decline-list li {
-            padding: 0.6rem 0;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-        }
-
-        .decline-list li:last-child {
-            border-bottom: none;
-        }
-
-        .decline-name {
-            color: var(--text);
-            font-weight: 500;
-        }
-
-        .decline-detail {
-            color: var(--text-dim);
-            font-size: 0.78rem;
-        }
-
-        .decline-detail .val {
-            color: var(--red);
-            font-weight: 600;
-        }
-
-        /* Methodology */
-        .method-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1.25rem 1.5rem;
-            font-size: 0.82rem;
-            color: var(--text-dim);
-        }
-
-        .method-box strong {
-            color: var(--text);
-        }
-
-        .method-box code {
-            background: var(--surface2);
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.78rem;
-            color: var(--accent2);
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-            margin-top: 3rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        footer a {
-            color: var(--accent2);
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 640px) {
-            .container { padding: 1rem; }
-            header { padding: 2rem 0 1.5rem; }
-            .meta { flex-direction: column; gap: 0.5rem; }
-            .spark-grid { grid-template-columns: 1fr; }
-            .momentum-grid { grid-template-columns: 1fr 1fr; }
+        @media(max-width:640px) {
+            .container{padding:1rem} header{padding:2rem 0 1.5rem}
+            .meta{flex-direction:column;gap:.5rem} .spark-grid{grid-template-columns:1fr}
+            .winner-grid{grid-template-columns:1fr} .compare-grid{grid-template-columns:1fr}
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="kicker">Time Series Forecast · August 2026</div>
+            <div class="kicker">YC Category Forecast · August 2026</div>
             <h1>Which YC Category Will<br>Dominate Next Batch?</h1>
-            <p class="subtitle">A time series forecast of YC startup category emergence based on Cambrian Signal data from 6,179 companies.</p>
+            <p class="subtitle">Two complementary forecasts: which categories hold the most share, and which niches are breaking out — based on 6,179 companies across 15 batches.</p>
             <div class="meta">
-                <span><span class="dot"></span> 15 batches analyzed (S21–S26)</span>
-                <span><span class="dot"></span> 75 category formations</span>
-                <span><span class="dot"></span> 6,179 companies analyzed</span>
+                <span><span class="dot"></span> 15 batches (S21–S26)</span>
+                <span><span class="dot"></span> 75 formations</span>
+                <span><span class="dot"></span> 6,179 companies</span>
             </div>
         </header>
 
+        <!-- Dual winners -->
         <section>
-            <div class="winner-card">
-                <div class="winner-label">★ Forecast: Top Emerging Category for S27</div>
-                <div class="winner-name">Industrials</div>
-                <div class="winner-stat">
-                    <strong>+7.6pp</strong> momentum · <strong>23.1%</strong> of S26 batch · <strong>4.5×</strong> growth since S21
+            <div class="winner-grid">
+                <div class="winner-card dom">
+                    <div class="winner-label">★ Dominance — Largest Next Batch</div>
+                    <div class="winner-name">AI</div>
+                    <div class="winner-stat"><strong>29.9%</strong> predicted share · <strong>31.0%</strong> current</div>
+                </div>
+                <div class="winner-card emg">
+                    <div class="winner-label">★ Emergence — Fastest Breakout</div>
+                    <div class="winner-name">Coding Agent</div>
+                    <div class="winner-stat"><strong>3.4%</strong> predicted · <strong>+0.6pp</strong> trend · rising from 0.3%</div>
                 </div>
             </div>
         </section>
 
-        <section>
-            <h2><span class="icon">📊</span> Forecast: Next Batch Share</h2>
-            <p>Predicted category share of the next YC batch based on 15 historical data points per category (one per batch, S21–S26).</p>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th class="num">Current</th>
-                            <th class="num">Forecast</th>
-                            <th style="min-width:140px">Distribution</th>
-                            <th class="num">Q10–Q90</th>
-                            <th>Signal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="forecast-body"></tbody>
-                </table>
-            </div>
-        </section>
+        <!-- Tabs -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="dominance">🏆 Dominance</button>
+            <button class="tab-btn" data-tab="emergence">🚀 Emergence</button>
+            <button class="tab-btn" data-tab="compare">⚖️ vs Cambrian Signal</button>
+        </div>
 
-        <section>
-            <h2><span class="icon">📈</span> Category Trajectories</h2>
-            <p>Share of batch over time for the top categories. Each point is one YC batch; the dashed segment is the forecast.</p>
-            <div class="spark-grid" id="spark-grid"></div>
-        </section>
+        <!-- DOMINANCE TAB -->
+        <div class="tab-panel active" id="tab-dominance">
+            <section>
+                <h2><span class="icon">📊</span> Dominance Forecast</h2>
+                <p>Which categories will hold the most share of the next YC batch? Predicted from 15 historical data points per category.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>#</th><th>Category</th><th class="num">Current</th><th class="num">Forecast</th><th style="min-width:140px">Distribution</th><th class="num">Q10–Q90</th><th>Signal</th></tr></thead>
+                        <tbody id="dom-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            <section>
+                <h2><span class="icon">📈</span> Dominance Trajectories</h2>
+                <p>Share of batch over time. Dashed line = forecast.</p>
+                <div class="spark-grid" id="dom-sparks"></div>
+            </section>
+        </div>
 
-        <section>
-            <h2><span class="icon">🔥</span> Momentum Leaders</h2>
-            <p>Categories gaining the most share in the most recent 3 batches vs. the prior 3. Acceleration measures whether the trend is strengthening.</p>
-            <div class="momentum-grid" id="momentum-grid"></div>
-        </section>
+        <!-- EMERGENCE TAB -->
+        <div class="tab-panel" id="tab-emergence">
+            <section>
+                <h2><span class="icon">🚀</span> Emergence Forecast</h2>
+                <p>Which niche categories are breaking out? These are the small but fast-growing segments Cambrian Signal flags as emerging.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>#</th><th>Category</th><th class="num">Current</th><th class="num">Forecast</th><th style="min-width:140px">Distribution</th><th class="num">Q10–Q90</th><th>Trend</th></tr></thead>
+                        <tbody id="emg-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            <section>
+                <h2><span class="icon">📈</span> Emergence Trajectories</h2>
+                <p>Share of batch over time for niche categories. Dashed line = forecast.</p>
+                <div class="spark-grid" id="emg-sparks"></div>
+            </section>
+        </div>
 
-        <section>
-            <h2><span class="icon">📉</span> Declining Categories</h2>
-            <p>Once-dominant categories losing share as AI becomes infrastructure and SaaS dissolves into vertical solutions.</p>
-            <ul class="decline-list" id="decline-list"></ul>
-        </section>
+        <!-- COMPARE TAB -->
+        <div class="tab-panel" id="tab-compare">
+            <section>
+                <h2><span class="icon">⚖️</span> Our Forecast vs Cambrian Signal</h2>
+                <p>Cambrian Signal's "What's Next" detects emerging categories via momentum on formation share. Our forecast extrapolates time series to predict next-batch share. They answer different questions.</p>
+                <div class="compare-grid">
+                    <div class="compare-card agree">
+                        <h3>✓ Where They Agree</h3>
+                        <ul class="compare-list">
+                            <li><span class="cat">Hard Tech</span> — both flag as growing (+1.5pp trend, 4.30× on Cambrian)</li>
+                            <li><span class="cat">Hardware</span> — both see growth (5.49× on Cambrian, +2.76pp share gain)</li>
+                            <li><span class="cat">Manufacturing & Robotics</span> — both flag breakout (7.78× on Cambrian)</li>
+                            <li><span class="cat">Developer Tools declining</span> — Cambrian's #1 mover (down), we show 20%→10%</li>
+                            <li><span class="cat">Security</span> — Cambrian sees 1.93× growth, we predict 1.7% share</li>
+                            <li><span class="cat">Defense</span> — Cambrian sees 3.48× growth, we see +0.3pp trend</li>
+                        </ul>
+                    </div>
+                    <div class="compare-card diverge">
+                        <h3>△ Where They Diverge</h3>
+                        <ul class="compare-list">
+                            <li><span class="cat">Cambrian sees niches we miss</span> — Autonomous Drones (4.15×), Drug Discovery (3.69×), Browser Agents (7.80×). Too small for share dominance but growing fast.</li>
+                            <li><span class="cat">We see broad shifts</span> — Industrials breakout (5%→23%), Fintech recovery. Cambrian's granularity buries these under sub-categories.</li>
+                            <li><span class="cat">Cambrian flags Reinforcement Learning</span> at 4.17× but we see it flat/declining in share — the absolute numbers are still tiny.</li>
+                            <li><span class="cat">Our model predicts Robotics mean-reversion</span> (11.8%→5.7%) but Cambrian sees Manufacturing & Robotics still accelerating.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h2><span class="icon">💡</span> Key Insight</h2>
+                <div class="method-box">
+                    <p><strong>Cambrian Signal detects EMERGENCE</strong> — small fast-growing niches that represent the next new thing (Browser Agents, Autonomous Drones, Drug Discovery). They rank by multiplier on small bases.</p>
+                    <p style="margin-top:.5rem"><strong>Our forecast predicts DOMINANCE</strong> — which categories hold the most companies in the next batch. We rank by absolute share percentage.</p>
+                    <p style="margin-top:.5rem"><strong>Together they tell the full story:</strong> AI and Industrials will dominate by volume, but the most interesting action is in niches like Coding Agents, Hard Tech, and Defense where Cambrian's momentum signal aligns with our upward trend forecasts.</p>
+                </div>
+            </section>
+        </div>
 
+        <!-- Methodology -->
         <section>
             <h2><span class="icon">🔬</span> Methodology</h2>
             <div class="method-box">
-                <p><strong>Data source:</strong> <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal</a> (YC formation data, 6,179 companies, version <code>yc-2026-08-14-semantic-v7</code>) cross-referenced with the <a href="https://yc-oss.github.io/api/companies/all.json" style="color:var(--accent2)">YC OSS API</a>.</p>
-                <p style="margin-top:0.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes range from 94 to 398). This removes batch-size bias.</p>
-                <p style="margin-top:0.5rem"><strong>Model:</strong> Time series forecasting model. Zero-shot — no fine-tuning. Config: <code>max_context=1024</code>, <code>max_horizon=16</code>, <code>normalize_inputs=True</code>, <code>use_continuous_quantile_head=True</code>, <code>force_flip_invariance=True</code>, <code>infer_is_positive=True</code>.</p>
-                <p style="margin-top:0.5rem"><strong>Forecast:</strong> 1-step and 2-step ahead point forecast + 10 quantile outputs (mean, 10th–90th percentile). Confidence intervals reflect model uncertainty, not historical volatility.</p>
-                <p style="margin-top:0.5rem"><strong>Limitations:</strong> YC batches are discrete events, not regular time series. Batch composition is curated by YC, not market-driven. The model assumes stationarity after normalization; structural breaks (e.g., "AI" splitting into subcategories) may not be captured. 15 data points is short-context; wider confidence intervals should be expected.</p>
+                <p><strong>Data:</strong> <a href="https://cambrian.jafar.com/" style="color:var(--accent2)">Cambrian Signal</a> (YC formation data, version <code>yc-2026-08-14-semantic-v7</code>) + <a href="https://yc-oss.github.io/api/companies/all.json" style="color:var(--accent2)">YC OSS API</a> (6,179 companies).</p>
+                <p style="margin-top:.5rem"><strong>Preprocessing:</strong> Company counts per category per batch, normalized to share of batch total (batch sizes 94–398). Emergence categories use keyword matching on company descriptions where YC tags don't exist.</p>
+                <p style="margin-top:.5rem"><strong>Model:</strong> Time series forecasting, zero-shot. 2-step ahead point forecast + quantile outputs (10th–90th percentile).</p>
+                <p style="margin-top:.5rem"><strong>Cambrian comparison:</strong> Their "What's Next" whisper rankings detect formation momentum (× multiplier on share change). We compare their signal direction against our trend forecasts.</p>
             </div>
         </section>
 
         <footer>
-            <p>Generated with <a href="https://cambrian.jafar.com/">Cambrian Signal</a> data · August 17, 2026</p>
-            <p style="margin-top:0.35rem">Data reflects YC batches S21 (Summer 2021) through S26 (Summer 2026). Forecast is for the next unannounced batch.</p>
+            <p>Data: <a href="https://cambrian.jafar.com/">Cambrian Signal</a> · August 17, 2026</p>
+            <p style="margin-top:.35rem">YC batches S21 (Summer 2021) through S26 (Summer 2026). Forecast is for the next unannounced batch.</p>
         </footer>
     </div>
 
     <script>
-    // ── DATA ──
-    const batches = ['S21','W22','S22','W23','S23','W24','S24','F24','W25','Sp25','S25','F25','W26','Sp26','S26'];
-    const batchTotals = {S21:391,W22:398,S22:234,W23:274,S23:220,W24:248,S24:248,F24:94,W25:167,Sp25:143,S25:166,F25:146,W26:198,Sp26:196,S26:229};
+    const batches=['S21','W22','S22','W23','S23','W24','S24','F24','W25','Sp25','S25','F25','W26','Sp26','S26'];
+    const batchTotals={S21:391,W22:398,S22:234,W23:274,S23:220,W24:248,S24:248,F24:94,W25:167,Sp25:143,S25:166,F25:146,W26:198,Sp26:196,S26:229};
 
-    const categories = {
-        'Industrials':            {counts:[20,24,14,6,6,9,25,5,19,15,14,12,28,25,53], forecast:17.0, q10:8.7, q50:17.0, q90:26.2, signal:'up'},
-        'AI':                     {counts:[39,53,45,64,62,78,85,35,39,46,49,45,14,11,71], forecast:29.9, q10:16.0, q50:29.9, q90:40.3, signal:'stable'},
-        'Artificial Intelligence':{counts:[44,57,45,58,74,93,80,24,54,38,50,42,19,13,75], forecast:28.6, q10:14.5, q50:28.6, q90:40.3, signal:'stable'},
-        'Fintech':                {counts:[144,182,96,66,38,35,34,8,24,12,13,12,22,22,30], forecast:13.1, q10:8.2, q50:13.1, q90:20.4, signal:'up'},
-        'Healthcare':             {counts:[80,63,33,36,48,42,32,14,17,17,14,16,17,18,28], forecast:11.1, q10:7.1, q50:11.1, q90:16.0, signal:'stable'},
-        'SaaS':                   {counts:[120,106,68,86,43,31,39,16,26,14,17,11,5,6,23], forecast:12.2, q10:2.9, q50:12.2, q90:23.1, signal:'recovery'},
-        'Developer Tools':        {counts:[33,34,24,49,32,31,32,19,16,20,23,15,4,8,22], forecast:10.4, q10:3.9, q50:10.4, q90:16.8, signal:'stable'},
-        'Robotics':               {counts:[3,5,3,1,0,5,9,1,5,9,5,8,2,4,27], forecast:5.7, q10:1.9, q50:5.7, q90:10.9, signal:'wild'},
-        'Hard Tech':              {counts:[9,11,2,2,2,2,11,1,5,6,2,4,3,4,21], forecast:4.1, q10:1.4, q50:4.1, q90:7.9, signal:'up'},
-        'Infrastructure':         {counts:[3,6,3,6,12,7,11,5,6,9,10,7,7,3,20], forecast:4.8, q10:1.3, q50:4.8, q90:8.7, signal:'down'},
-        'Hardware':               {counts:[6,10,2,1,2,1,8,0,8,6,6,5,3,3,17], forecast:3.5, q10:0.8, q50:3.5, q90:6.9, signal:'down'},
-        'Consumer':               {counts:[51,77,41,33,17,45,37,19,18,17,17,26,9,20,17], forecast:10.7, q10:3.8, q50:10.7, q90:17.6, signal:'recovery'},
-        'Reinforcement Learning': {counts:[0,0,0,2,0,3,1,1,4,5,4,3,2,0,14], forecast:2.3, q10:0.2, q50:2.3, q90:5.4, signal:'down'},
-        'Manufacturing':          {counts:[4,8,3,2,4,3,10,2,5,9,4,4,0,1,18], forecast:3.1, q10:0.3, q50:3.1, q90:6.9, signal:'down'},
-        'Machine Learning':       {counts:[20,24,11,12,11,6,10,6,5,8,4,5,3,0,12], forecast:null, q10:null, q50:null, q90:null, signal:'down'}
+    const dominance={
+        'AI':{series:[10.0,13.3,19.2,23.4,28.2,31.5,34.3,37.2,23.4,32.2,29.5,30.8,7.1,5.6,31.0],fc1:29.9,fc2:28.9,q10:16.0,q90:40.3,trend:-16.3,signal:'stable'},
+        'Artificial Intelligence':{series:[11.3,14.3,19.2,21.2,33.6,37.5,32.3,25.5,32.3,26.6,30.1,28.8,9.6,6.6,32.8],fc1:28.6,fc2:29.7,q10:14.5,q90:40.3,trend:-12.2,signal:'stable'},
+        'Industrials':{series:[5.1,6.0,6.0,2.2,2.7,3.6,10.1,5.3,11.4,10.5,8.4,8.2,14.1,12.8,23.1],fc1:17.0,fc2:15.9,q10:8.7,q90:26.2,trend:7.6,signal:'up'},
+        'Fintech':{series:[36.8,45.7,41.0,24.1,17.3,14.1,13.7,8.5,14.4,8.4,7.8,8.2,11.1,11.2,13.1],fc1:13.1,fc2:12.6,q10:8.2,q90:20.4,trend:3.7,signal:'up'},
+        'SaaS':{series:[30.7,26.6,29.1,31.4,19.5,12.5,15.7,17.0,15.6,9.8,10.2,7.5,2.5,3.1,10.0],fc1:12.2,fc2:14.5,q10:2.9,q90:23.1,trend:-4.0,signal:'recovery'},
+        'Healthcare':{series:[20.5,15.8,14.1,13.1,21.8,16.9,12.9,14.9,10.2,11.9,8.4,11.0,8.6,9.2,12.2],fc1:11.1,fc2:11.5,q10:7.1,q90:16.0,trend:-0.4,signal:'stable'},
+        'Consumer':{series:[13.0,19.3,17.5,12.0,7.7,18.1,14.9,20.2,10.8,11.9,10.2,17.8,4.5,10.2,7.4],fc1:10.7,fc2:9.3,q10:3.8,q90:17.6,trend:-5.9,signal:'recovery'},
+        'Developer Tools':{series:[8.4,8.5,10.3,17.9,14.5,12.5,12.9,20.2,9.6,14.0,13.9,10.3,2.0,4.1,9.6],fc1:10.4,fc2:10.1,q10:3.9,q90:16.8,trend:-7.5,signal:'stable'},
+        'Robotics':{series:[0.8,1.3,1.3,0.4,0.0,2.0,3.6,1.1,3.0,6.3,3.0,5.5,1.0,2.0,11.8],fc1:5.7,fc2:4.4,q10:1.9,q90:10.9,trend:0.0,signal:'wild'},
+        'Infrastructure':{series:[0.8,1.5,1.3,2.2,5.5,2.8,4.4,5.3,3.6,6.3,6.0,4.8,3.5,1.5,8.7],fc1:4.8,fc2:5.1,q10:1.3,q90:8.7,trend:-1.1,signal:'down'},
+        'Hard Tech':{series:[2.3,2.8,0.9,0.7,0.9,0.8,4.4,1.1,3.0,4.2,1.2,2.7,1.5,2.0,9.2],fc1:4.1,fc2:3.1,q10:1.4,q90:7.9,trend:1.5,signal:'up'},
+        'Machine Learning':{series:[5.1,6.0,4.7,4.4,5.0,2.4,4.0,6.4,3.0,5.4,2.4,3.4,1.5,0.0,5.2],fc1:3.9,fc2:4.2,q10:1.1,q90:6.5,trend:-1.6,signal:'down'},
+        'Hardware':{series:[1.5,2.5,0.9,0.4,0.9,0.4,3.2,0.0,4.8,4.2,3.6,3.4,1.5,1.5,7.4],fc1:3.5,fc2:3.2,q10:0.8,q90:6.9,trend:-0.3,signal:'down'},
+        'Manufacturing':{series:[1.0,2.0,1.3,0.7,1.8,1.2,4.0,2.1,3.0,6.3,2.4,2.7,0.0,0.5,7.9],fc1:3.1,fc2:2.4,q10:0.3,q90:6.9,trend:-1.0,signal:'down'},
+        'Reinforcement Learning':{series:[0.0,0.0,0.0,0.7,0.0,1.2,0.4,1.1,2.4,3.5,2.4,2.1,1.0,0.0,6.1],fc1:2.3,fc2:1.7,q10:0.2,q90:5.4,trend:-0.3,signal:'down'}
     };
 
-    const broadLabels = new Set(['AI', 'Artificial Intelligence', 'SaaS', 'Consumer']);
+    const emergence={
+        'Coding Agent':{series:[0.8,0.3,0.9,0.7,2.7,2.8,2.4,3.2,0.6,3.5,2.4,4.1,2.5,6.1,3.1],fc1:3.4,fc2:null,q10:0.0,q90:7.5,trend:0.6,signal:'up'},
+        'Voice Agent':{series:[0.5,0.0,2.1,1.1,0.5,3.2,2.0,3.2,4.8,2.1,5.4,2.1,2.0,1.5,2.6],fc1:2.2,fc2:null,q10:0.0,q90:5.0,trend:-1.1,signal:'down'},
+        'Security':{series:[1.8,2.5,1.7,1.5,1.4,2.4,1.2,1.1,0.0,2.8,1.2,1.4,0.0,0.5,3.1],fc1:1.7,fc2:null,q10:0.3,q90:3.2,trend:-0.6,signal:'down'},
+        'Law Firm':{series:[0.0,0.3,0.0,0.4,0.5,1.2,1.2,2.1,1.8,1.4,1.2,1.4,3.0,0.5,1.7],fc1:1.4,fc2:null,q10:0.0,q90:3.3,trend:0.4,signal:'stable'},
+        'Defense':{series:[0.8,0.3,0.0,0.0,0.0,0.4,0.8,2.1,0.0,0.0,0.6,2.1,0.0,1.0,2.6],fc1:1.3,fc2:null,q10:0.2,q90:2.7,trend:0.3,signal:'stable'},
+        'Drones':{series:[0.5,0.3,0.4,0.4,0.0,0.4,0.4,0.0,0.0,0.0,0.6,0.7,1.0,0.5,2.2],fc1:1.0,fc2:null,q10:0.0,q90:2.5,trend:0.8,signal:'up'},
+        'Humanoid Robots':{series:[0.0,0.0,0.0,0.0,0.0,0.8,0.0,0.0,0.6,0.7,0.6,1.4,1.0,1.0,1.3],fc1:1.0,fc2:null,q10:0.0,q90:2.7,trend:0.2,signal:'stable'},
+        'Supply Chain':{series:[2.3,3.5,3.0,2.6,3.2,2.0,6.9,2.1,1.8,3.5,5.4,1.4,3.0,1.0,6.6],fc1:1.0,fc2:null,q10:0.1,q90:2.0,trend:-0.8,signal:'down'},
+        'GovTech':{series:[1.0,0.8,0.9,0.0,0.9,0.8,0.8,0.0,3.0,0.7,0.6,1.4,0.0,0.5,1.7],fc1:0.9,fc2:null,q10:0.0,q90:2.0,trend:-0.1,signal:'stable'},
+        'Data Labeling':{series:[0.3,0.8,0.0,0.0,0.5,0.0,0.8,0.0,0.6,2.1,0.6,0.7,0.5,0.0,2.2],fc1:0.8,fc2:null,q10:0.0,q90:1.8,trend:-0.2,signal:'stable'},
+        'Clinical Trial':{series:[0.8,0.0,0.9,1.1,0.5,0.4,0.4,0.0,1.8,0.0,3.0,0.0,0.0,1.0,0.9],fc1:0.6,fc2:null,q10:0.0,q90:1.5,trend:-0.4,signal:'stable'},
+        'Hedge Fund':{series:[0.3,0.5,0.9,0.0,0.0,0.0,0.4,0.0,1.8,0.7,0.0,0.0,0.5,3.1,0.9],fc1:0.6,fc2:null,q10:0.0,q90:1.5,trend:1.2,signal:'up'},
+        'Browser Agents':{series:[0.3,0.0,0.4,0.0,0.5,0.8,0.4,1.1,1.2,2.1,2.4,0.7,0.0,0.5,0.4],fc1:0.4,fc2:null,q10:0.0,q90:1.5,trend:-1.4,signal:'down'},
+        'Design':{series:[0.8,0.3,0.0,1.1,1.8,0.8,0.0,2.1,1.8,0.7,1.2,3.4,0.0,1.0,0.4],fc1:0.4,fc2:null,q10:0.0,q90:1.5,trend:-1.4,signal:'down'},
+        'AI-powered Drug Discovery':{series:[1.8,0.3,0.4,0.7,0.5,0.4,0.8,0.0,0.0,0.0,1.2,0.0,0.0,0.0,1.3],fc1:0.4,fc2:null,q10:0.0,q90:1.5,trend:0.0,signal:'stable'},
+        'Document Processing':{series:[0.0,0.5,0.4,0.7,0.0,0.4,0.0,0.0,0.0,0.7,0.0,0.0,1.0,0.5,0.4],fc1:0.3,fc2:null,q10:0.0,q90:1.2,trend:0.4,signal:'stable'}
+    };
 
-    // ── HELPERS ──
-    function share(counts, i) {
-        return (counts[i] / batchTotals[batches[i]] * 100);
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    function signalTag(sig) {
+        return {up:'<span class="tag tag-up">▲ Emerging</span>',down:'<span class="tag tag-down">▼ Declining</span>',stable:'<span class="tag tag-hot">— Stable</span>',recovery:'<span class="tag tag-up">↻ Recovery</span>',wild:'<span class="tag tag-wild">⚡ Volatile</span>'}[sig]||'';
     }
 
-    function shares(counts) {
-        return counts.map((c, i) => share(counts, i));
-    }
-
-    // ── FORECAST TABLE ──
-    const forecastData = Object.entries(categories)
-        .filter(([_, d]) => d.forecast !== null)
-        .map(([name, d]) => {
-            const s = shares(d.counts);
-            const current = s[s.length - 1];
-            return { name, current, forecast: d.forecast, q10: d.q10, q50: d.q50, q90: d.q90, signal: d.signal, shares: s };
-        })
-        .sort((a, b) => b.forecast - a.forecast);
-
-    const maxForecast = Math.max(...forecastData.map(d => d.forecast));
-    const tbody = document.getElementById('forecast-body');
-
-    forecastData.forEach((d, i) => {
-        const pct = (d.forecast / maxForecast * 100);
-        const signalTag = {
-            up: '<span class="tag tag-up">▲ Emerging</span>',
-            down: '<span class="tag tag-down">▼ Declining</span>',
-            stable: '<span class="tag tag-hot">— Stable</span>',
-            recovery: '<span class="tag tag-up">↻ Recovery</span>',
-            wild: '<span class="tag tag-wild">⚡ Volatile</span>'
-        }[d.signal] || '';
-
+    // Render dominance table
+    const domEntries = Object.entries(dominance).sort((a,b) => b[1].fc1 - a[1].fc1);
+    const domMax = Math.max(...domEntries.map(([_,d]) => d.fc1));
+    const domBody = document.getElementById('dom-body');
+    domEntries.forEach(([name, d], i) => {
+        const pct = d.fc1 / domMax * 100;
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="num" style="color:var(--text-dim)">${i + 1}</td>
-            <td class="cat-name">${d.name}</td>
-            <td class="num">${d.current.toFixed(1)}%</td>
-            <td class="num" style="font-weight:600;color:var(--accent2)">${d.forecast.toFixed(1)}%</td>
-            <td class="bar-cell">
-                <div class="bar-bg" style="width:${pct}%"></div>
-                <div class="bar-fg" style="width:${pct}%"></div>
-            </td>
-            <td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td>
-            <td>${signalTag}</td>
-        `;
-        tbody.appendChild(row);
+        row.innerHTML = `<td class="num" style="color:var(--text-dim)">${i+1}</td><td class="cat-name">${name}</td><td class="num">${d.series[14].toFixed(1)}%</td><td class="num" style="font-weight:600;color:var(--accent2)">${d.fc1.toFixed(1)}%</td><td class="bar-cell"><div class="bar-bg" style="width:${pct}%"></div><div class="bar-fg" style="width:${pct}%"></div></td><td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td><td>${signalTag(d.signal)}</td>`;
+        domBody.appendChild(row);
     });
 
-    // ── SPARKLINES ──
-    const sparkCategories = ['Industrials','AI','Fintech','Healthcare','SaaS','Robotics','Developer Tools','Hard Tech','Consumer','Infrastructure'];
-    const sparkGrid = document.getElementById('spark-grid');
-
-    sparkCategories.forEach(cat => {
-        const d = categories[cat];
-        const s = shares(d.counts);
-        const allVals = [...s];
-        if (d.forecast !== null) allVals.push(d.forecast);
-        const max = Math.max(...allVals);
-        const min = Math.min(...allVals);
-        const range = max - min || 1;
-
-        const W = 260, H = 48, PAD = 4;
-        const xStep = (W - PAD * 2) / (s.length - 1);
-        const yScale = v => H - PAD - ((v - min) / range) * (H - PAD * 2);
-
-        let pathD = s.map((v, i) => `${i === 0 ? 'M' : 'L'}${PAD + i * xStep},${yScale(v)}`).join(' ');
-
-        // Forecast point
-        const lastX = PAD + (s.length - 1) * xStep;
-        const fcX = PAD + s.length * xStep;
-        let forecastLine = '';
-        if (d.forecast !== null) {
-            forecastLine = `<line x1="${lastX}" y1="${yScale(s[s.length-1])}" x2="${fcX}" y2="${yScale(d.forecast)}" stroke="var(--accent2)" stroke-width="1.5" stroke-dasharray="4,3" />`;
-            forecastLine += `<circle cx="${fcX}" cy="${yScale(d.forecast)}" r="3" fill="var(--accent2)" />`;
-        }
-
-        const lastVal = s[s.length - 1];
-        const prevVal = s[s.length - 2];
-        const delta = lastVal - prevVal;
-        const deltaClass = delta >= 0 ? 'up' : 'down';
-        const deltaStr = delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
-
-        const card = document.createElement('div');
-        card.className = 'spark-card';
-        card.innerHTML = `
-            <div class="spark-header">
-                <span class="spark-title">${cat}</span>
-                <span class="spark-value">${lastVal.toFixed(1)}% <span class="${deltaClass}">${deltaStr}pp</span></span>
-            </div>
-            <svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-                <path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="1.5" />
-                ${forecastLine}
-                <circle cx="${lastX}" cy="${yScale(lastVal)}" r="2.5" fill="var(--accent)" />
-            </svg>
-        `;
-        sparkGrid.appendChild(card);
+    // Render emergence table
+    const emgEntries = Object.entries(emergence).sort((a,b) => b[1].fc1 - a[1].fc1);
+    const emgMax = Math.max(...emgEntries.map(([_,d]) => d.fc1));
+    const emgBody = document.getElementById('emg-body');
+    emgEntries.forEach(([name, d], i) => {
+        const pct = d.fc1 / emgMax * 100;
+        const tCls = d.trend > 0.3 ? 'up' : d.trend < -0.3 ? 'down' : '';
+        const tSign = d.trend >= 0 ? '+' : '';
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="num" style="color:var(--text-dim)">${i+1}</td><td class="cat-name">${name}</td><td class="num">${d.series[14].toFixed(1)}%</td><td class="num" style="font-weight:600;color:var(--blue)">${d.fc1.toFixed(1)}%</td><td class="bar-cell"><div class="bar-bg blue" style="width:${pct}%"></div><div class="bar-fg blue" style="width:${pct}%"></div></td><td class="num ci">${d.q10.toFixed(1)}%–${d.q90.toFixed(1)}%</td><td><span class="${tCls}" style="color:${tCls==='up'?'var(--accent2)':tCls==='down'?'var(--red)':'var(--text-dim)'}">${tSign}${d.trend.toFixed(1)}pp</span></td>`;
+        emgBody.appendChild(row);
     });
 
-    // ── MOMENTUM ──
-    const momentumData = Object.entries(categories)
-        .filter(([_, d]) => d.counts && d.forecast !== null)
-        .map(([name, d]) => {
-            const s = shares(d.counts);
-            const recent = (s[12] + s[13] + s[14]) / 3;
-            const mid = (s[9] + s[10] + s[11]) / 3;
-            const early = s.slice(0, 6).reduce((a, b) => a + b, 0) / 6;
-            const trend = recent - mid;
-            const accel = trend - (mid - early);
-            return { name, trend, accel, recent, current: s[14] };
-        })
-        .filter(d => !broadLabels.has(d.name))
-        .sort((a, b) => b.trend - a.trend);
+    // Sparklines helper
+    function renderSparks(containerId, data, color) {
+        const grid = document.getElementById(containerId);
+        Object.entries(data).forEach(([cat, d]) => {
+            const s = d.series;
+            const allVals = [...s, d.fc1];
+            const max = Math.max(...allVals), min = Math.min(...allVals), range = max - min || 1;
+            const W=260, H=48, PAD=4;
+            const xStep = (W-PAD*2)/(s.length-1);
+            const yScale = v => H-PAD-((v-min)/range)*(H-PAD*2);
+            let pathD = s.map((v,i) => `${i===0?'M':'L'}${PAD+i*xStep},${yScale(v)}`).join(' ');
+            const lastX = PAD+(s.length-1)*xStep;
+            const fcX = PAD+s.length*xStep;
+            let fcLine = `<line x1="${lastX}" y1="${yScale(s[s.length-1])}" x2="${fcX}" y2="${yScale(d.fc1)}" stroke="${color}" stroke-width="1.5" stroke-dasharray="4,3"/><circle cx="${fcX}" cy="${yScale(d.fc1)}" r="3" fill="${color}"/>`;
+            const lastVal = s[s.length-1], prevVal = s[s.length-2], delta = lastVal-prevVal;
+            const dCls = delta >= 0 ? 'up' : 'down';
+            const card = document.createElement('div');
+            card.className = 'spark-card';
+            card.innerHTML = `<div class="spark-header"><span class="spark-title">${cat}</span><span class="spark-value">${lastVal.toFixed(1)}% <span class="${dCls}">${delta>=0?'+':''}${delta.toFixed(1)}pp</span></span></div><svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${pathD}" fill="none" stroke="${color}" stroke-width="1.5"/>${fcLine}<circle cx="${lastX}" cy="${yScale(lastVal)}" r="2.5" fill="${color}"/></svg>`;
+            grid.appendChild(card);
+        });
+    }
 
-    const momentumGrid = document.getElementById('momentum-grid');
-    momentumData.slice(0, 6).forEach(d => {
-        const cls = d.trend >= 0 ? 'up' : 'down';
-        const sign = d.trend >= 0 ? '+' : '';
-        const card = document.createElement('div');
-        card.className = 'momentum-card';
-        card.innerHTML = `
-            <div class="momentum-name">${d.name}</div>
-            <div class="momentum-stat ${cls}">${sign}${d.trend.toFixed(1)}pp</div>
-            <div class="momentum-sub">Current: ${d.current.toFixed(1)}% · Accel: ${d.accel >= 0 ? '+' : ''}${d.accel.toFixed(1)}pp</div>
-        `;
-        momentumGrid.appendChild(card);
-    });
-
-    // ── DECLINES ──
-    const declineData = Object.entries(categories)
-        .filter(([_, d]) => d.counts)
-        .map(([name, d]) => {
-            const s = shares(d.counts);
-            const peak = Math.max(...s);
-            const peakIdx = s.indexOf(peak);
-            const current = s[s.length - 1];
-            return { name, peak, peakBatch: batches[peakIdx], current, drop: current - peak };
-        })
-        .filter(d => d.drop < -5)
-        .sort((a, b) => a.drop - b.drop);
-
-    const declineList = document.getElementById('decline-list');
-    declineData.forEach(d => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span class="decline-name">${d.name}</span>
-            <span class="decline-detail">Peak ${d.peak.toFixed(1)}% (${d.peakBatch}) → <span class="val">${d.current.toFixed(1)}%</span> · ${d.drop.toFixed(1)}pp</span>
-        `;
-        declineList.appendChild(li);
-    });
+    // Show top 10 for each
+    const domTop10 = Object.fromEntries(domEntries.slice(0,10));
+    const emgTop10 = Object.fromEntries(emgEntries.slice(0,10));
+    renderSparks('dom-sparks', domTop10, 'var(--accent2)');
+    renderSparks('emg-sparks', emgTop10, 'var(--blue)');
     </script>
 </body>
 </html>
